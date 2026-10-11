@@ -13,9 +13,9 @@ Last updated: 2026-10-11
   -a`); it may be what USB gadget mode needs.
 
 ## Unresolved
-- GPS: the bridge forwards the NEO-6M's UART but sees 0 sentences; the
-  module is not wired to the bridge Heltec (pins 4/5, 3V3, GND) since the
-  board was moved. Reconnect and check the OLED's `gps` counter.
+- GPS parked (Aditya, 2026-10-11): indoors; bridge pin sampling with
+  pull-downs showed no Heltec pin driven, i.e. the NEO-6M is unpowered or
+  unconnected. Future: GPS on the Pi's UART (pins 8/10).
 - The Heltec's SX126x reports "SX1261" in its version string. Confirm the
   die (SX1261 = +15 dBm max, SX1262 = +22 dBm max) before trusting any
   22 dBm figure; see findings.

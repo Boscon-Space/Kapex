@@ -4,6 +4,11 @@ Newest first. Each entry: date, decision, why, what it rules out.
 
 ## 2026-10-11
 
+- **GPS will connect to the Pi 5 directly** (UART on header pins 8/10,
+  `/dev/ttyAMA0`, already enabled), not through the Heltec bridge. Why:
+  Aditya's call; the flight article has the MAX-M10S on the Pi anyway (docs/04
+  §5.2). The bridge's GPS forwarding stays as a bench convenience. Bench GPS
+  parked for now (indoors, and not currently driving any Heltec pin).
 - **Bench network is the phone hotspot (Wi-Fi), not USB gadget.** Why: USB
   gadget mode works on the Pi side but the Mac never enumerates the Pi
   (unresolved, see findings). Wi-Fi also gives the Pi internet for packages.

@@ -150,6 +150,14 @@ Newest session first. One entry per session; bullets are what actually happened.
   last-good, beacon resumed. **Rollback proven**: a zero-filled app image →
   no answer → last-good flashed back → answering → beacon active.
 
+**GPS diagnosis (parked)**
+- Bridge v4 adds `'S' pin`: sample a GPIO 2000× with an internal pull-down.
+  Flashed from the Pi twice via the new pipeline. Result: every header pin
+  reads 0/2000 (floating); only GPIO0 (boot strap) is high. A powered UART
+  TX idles high, so the NEO-6M is unpowered or not landing on any Heltec
+  pin. Aditya parked it: indoors anyway, and the GPS will go on the Pi's own
+  UART later.
+
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
 11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`
