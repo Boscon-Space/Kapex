@@ -1,0 +1,12 @@
+# downloaded OS images and per-machine first-boot config (contains a password hash + wifi)
+image/*.img
+image/*.img.xz
+image/*.sha256
+image/user-data
+image/network-config
+# gradle / kotlin
+.gradle/
+build/
+**/build/
+.kotlin/
+*.kexe

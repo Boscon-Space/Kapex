@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pi 5 Header Pins</title>
+<style>
+  :root { --bg:#fff; --fg:#111; --muted:#666; --line:#ddd; --board:#1f6f3f; --pcb:#2a7a4a;
+          --gnd:#222; --v5:#c62828; --v33:#e6a700; --i2c:#1565c0; --jump:#ef6c00; --spi:#6a1b9a; --uart:#00838f; --gpio:#f2f2f2; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#141414; --fg:#eee; --muted:#aaa; --line:#333; --gpio:#2a2a2a; } }
+  :root[data-theme="dark"] { --bg:#141414; --fg:#eee; --muted:#aaa; --line:#333; --gpio:#2a2a2a; }
+  body { margin:0; padding:16px; background:var(--bg); color:var(--fg); font:15px/1.45 -apple-system, system-ui, sans-serif; }
+  h1 { font-size:22px; margin:0 0 4px; } h2 { font-size:17px; margin:24px 0 8px; }
+  p { max-width:760px; margin:6px 0; } .muted { color:var(--muted); }
+  .wrap { max-width:960px; margin:0 auto; }
+  /* board sketch */
+  .board { position:relative; background:var(--board); border-radius:10px; padding:14px 14px 18px; margin:14px 0 8px; color:#fff; overflow-x:auto; }
+  .board .label { position:absolute; font-size:12px; opacity:.9; }
+  .sd { left:14px; bottom:10px; } .usbc { left:120px; bottom:10px; } .ports { right:14px; bottom:10px; }
+  .header { display:grid; grid-template-columns:repeat(20, minmax(34px, 1fr)); gap:4px; background:#111; padding:6px; border-radius:6px; }
+  .pin { aspect-ratio:1; border-radius:4px; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; color:#111; background:var(--gpio); position:relative; }
+  .pin.gnd { background:var(--gnd); color:#fff; } .pin.v5 { background:var(--v5); color:#fff; } .pin.v33 { background:var(--v33); }
+  .pin.i2c { background:var(--i2c); color:#fff; } .pin.spi { background:var(--spi); color:#fff; } .pin.uart { background:var(--uart); color:#fff; }
+  .pin.jump { outline:3px solid var(--jump); outline-offset:-3px; }
+  .pin.one { border-radius:0; }  /* pin 1 is the square pad */
+  .rowlabel { font-size:12px; margin:2px 0 6px; opacity:.9; }
+  .jumperline { height:0; border-top:3px dashed var(--jump); margin:0 0 0 calc(5 * (100% / 20) + 2px); width:calc(100% / 20 - 4px); position:relative; top:-2px; }
+  /* table */
+  table { border-collapse:collapse; width:100%; max-width:760px; font-size:14px; }
+  th, td { border-bottom:1px solid var(--line); padding:5px 8px; text-align:left; }
+  th { font-weight:600; } td.n { font-weight:700; width:3em; text-align:right; }
+  .sw { display:inline-block; width:14px; height:14px; border-radius:3px; vertical-align:-2px; margin-right:6px; }
+  .legend span { display:inline-block; margin:4px 14px 4px 0; }
+  .callout { border-left:4px solid var(--jump); padding:8px 12px; margin:12px 0; background:color-mix(in srgb, var(--jump) 10%, var(--bg)); }
+  .callout.blue { border-color:var(--i2c); background:color-mix(in srgb, var(--i2c) 10%, var(--bg)); }
+  /* wiring figure: one grid, so every wire is locked to its row */
+  .wiring { display:grid; grid-template-columns: 11em 1fr 15em; column-gap:0; row-gap:8px; max-width:760px; margin:12px 0; align-items:center; }
+  .wiring .hdr { font-weight:600; font-size:14px; padding:0 0 4px; }
+  .wiring .pad { display:flex; align-items:center; gap:8px; min-height:34px; padding:4px 10px; border-radius:6px; background:var(--gpio); font-size:13px; line-height:1.2; }
+  .wiring .pad b { flex:0 0 3.4em; }
+  .wiring .pad.nc { opacity:.6; border:1px dashed var(--line); background:transparent; }
+  .wiring .wire { height:6px; border-radius:3px; margin:0 6px; }
+  .wiring .wire.nc { height:2px; background:repeating-linear-gradient(90deg, var(--line) 0 8px, transparent 8px 16px); }
+  .wiring .wire.sda, .wiring .wire.scl { background:var(--i2c); } .wiring .wire.gnd { background:var(--gnd); } .wiring .wire.vcc { background:var(--v33); }
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>Raspberry Pi 5 — 40-pin header, physical numbering</h1>
+<p class="muted">The board has no printed numbers. Count from the end of the header nearest the microSD slot. <strong>Pin 1 is the pin with the square solder pad</strong> (look at the underside of the board); every other pad is round. Odd pins are the inner row (toward the middle of the board), even pins are the outer row (toward the board edge).</p>
+
+<div class="board">
+  <div class="rowlabel">Board edge ↑ &nbsp; outer row = even pins (2 … 40)</div>
+  <div class="header" id="header"></div>
+  <div class="rowlabel">inner row = odd pins (1 … 39) &nbsp; ↓ toward the middle of the board</div>
+  <div style="height:70px"></div>
+  <div class="label sd">◀ microSD slot end &nbsp;·&nbsp; pin 1 / pin 2 are at this end</div>
+  <div class="label ports">USB-A &amp; Ethernet ports end ▶</div>
+</div>
+
+<div class="legend">
+  <span><i class="sw" style="background:var(--v33)"></i>3.3 V</span>
+  <span><i class="sw" style="background:var(--v5)"></i>5 V</span>
+  <span><i class="sw" style="background:var(--gnd)"></i>Ground</span>
+  <span><i class="sw" style="background:var(--i2c)"></i>I²C (SDA/SCL)</span>
+  <span><i class="sw" style="background:var(--spi)"></i>SPI</span>
+  <span><i class="sw" style="background:var(--uart)"></i>UART</span>
+  <span><i class="sw" style="background:var(--gpio); outline:3px solid var(--jump); outline-offset:-3px"></i>Jumper for the probe</span>
+</div>
+
+<div class="callout"><strong>Loopback jumper for <code>gpio_probe</code>:</strong> one wire between <strong>pin 11</strong> (GPIO17) and <strong>pin 13</strong> (GPIO27). Both are on the inner row, next to each other: the 6th and 7th pins counting from the microSD end.</div>
+<div class="callout blue"><strong>Bench BMP280 on I²C:</strong> VCC → <strong>pin 1</strong> (3.3 V), SDA → <strong>pin 3</strong> (GPIO2), SCL → <strong>pin 5</strong> (GPIO3), GND → <strong>pin 9</strong>. Pins 1, 3, 5 are the first three inner-row pins; pin 9 is the 5th inner-row pin. Never put the sensor on 5 V.</div>
+
+
+<h2>BMP280 wiring (bench sensor, GY-BMP280 3.3 V module)</h2>
+<p class="muted">Four wires. Read the module's pin labels printed on its board; the usual order is SDO, CSB, SDA, SCL, GND, VCC. Leave <strong>SDO</strong> and <strong>CSB</strong> unconnected, exactly as they were on the Heltec rig: the module then sits at I²C address 0x76 (or 0x77 — the probe scans both). The module is 3.3 V only: VCC goes to pin 1, never to a 5 V pin.</p>
+<div class="wiring">
+  <div class="hdr">BMP280 module</div><div></div><div class="hdr">Pi 5 header</div>
+  <div class="pad nc"><b>SDO</b> not connected</div><div class="wire nc"></div><div class="pad nc">—</div>
+  <div class="pad nc"><b>CSB</b> not connected</div><div class="wire nc"></div><div class="pad nc">—</div>
+  <div class="pad" style="background:var(--i2c);color:#fff"><b>SDA</b> data</div><div class="wire sda"></div><div class="pad" style="background:var(--i2c);color:#fff"><b>pin 3</b> GPIO2 · SDA1</div>
+  <div class="pad" style="background:var(--i2c);color:#fff"><b>SCL</b> clock</div><div class="wire scl"></div><div class="pad" style="background:var(--i2c);color:#fff"><b>pin 5</b> GPIO3 · SCL1</div>
+  <div class="pad" style="background:var(--gnd);color:#fff"><b>GND</b> ground</div><div class="wire gnd"></div><div class="pad" style="background:var(--gnd);color:#fff"><b>pin 9</b> GND</div>
+  <div class="pad" style="background:var(--v33)"><b>VCC</b> 3.3 V in</div><div class="wire vcc"></div><div class="pad" style="background:var(--v33)"><b>pin 1</b> 3.3 V · square pad</div>
+</div>
+<p class="muted">All four Pi pins are on the inner row, counting from the microSD end: pin 1 is the 1st (square pad), pin 3 the 2nd, pin 5 the 3rd, pin 9 the 5th; pin 7 between them stays empty. Jumper wires 11–13 and 19–21 stay where they are.</p>
+
+<h2>Every pin</h2>
+<table id="table"><thead><tr><th>Pin</th><th>Function</th><th></th><th>Pin</th><th>Function</th></tr></thead><tbody></tbody></table>
+<p class="muted">Pins 27 and 28 (ID_SD / ID_SC) are reserved for HAT EEPROMs; do not use them. GPIO numbers are the ones <code>gpio_probe</code>, <code>gpioinfo</code> and the HAL use (line offsets on <code>gpiochip0</code>).</p>
+</div>
+<script>
+const pins = {
+ 1:["3.3 V","v33"], 2:["5 V","v5"], 3:["GPIO2 · SDA1","i2c"], 4:["5 V","v5"], 5:["GPIO3 · SCL1","i2c"], 6:["GND","gnd"],
+ 7:["GPIO4",""], 8:["GPIO14 · TXD","uart"], 9:["GND","gnd"], 10:["GPIO15 · RXD","uart"], 11:["GPIO17","jump"], 12:["GPIO18",""],
+ 13:["GPIO27","jump"], 14:["GND","gnd"], 15:["GPIO22",""], 16:["GPIO23",""], 17:["3.3 V","v33"], 18:["GPIO24",""],
+ 19:["GPIO10 · MOSI","spi"], 20:["GND","gnd"], 21:["GPIO9 · MISO","spi"], 22:["GPIO25",""], 23:["GPIO11 · SCLK","spi"], 24:["GPIO8 · CE0","spi"],
+ 25:["GND","gnd"], 26:["GPIO7 · CE1","spi"], 27:["ID_SD (reserved)",""], 28:["ID_SC (reserved)",""], 29:["GPIO5",""], 30:["GND","gnd"],
+ 31:["GPIO6",""], 32:["GPIO12",""], 33:["GPIO13",""], 34:["GND","gnd"], 35:["GPIO19",""], 36:["GPIO16",""],
+ 37:["GPIO26",""], 38:["GPIO20",""], 39:["GND","gnd"], 40:["GPIO21",""] };
+const h = document.getElementById('header');
+// top row: even pins 2..40, bottom row: odd pins 1..39, left to right from the SD end
+for (let p = 2; p <= 40; p += 2) h.appendChild(cell(p));
+for (let p = 1; p <= 39; p += 2) h.appendChild(cell(p));
+function cell(p){ const d=document.createElement('div'); const [name,cls]=pins[p];
+  d.className='pin '+cls+(p===1?' one':''); d.textContent=p; d.title=`pin ${p}: ${name}`; return d; }
+const tb = document.querySelector('#table tbody');
+for (let p = 1; p <= 39; p += 2) { const tr=document.createElement('tr');
+  tr.innerHTML = `<td class="n">${p}</td><td>${sw(p)}${pins[p][0]}</td><td></td><td class="n">${p+1}</td><td>${sw(p+1)}${pins[p+1][0]}</td>`; tb.appendChild(tr); }
+function sw(p){ const c=pins[p][1]; const col = c==='jump'?'var(--gpio); outline:3px solid var(--jump); outline-offset:-3px':c?`var(--${c})`:'var(--gpio)'; return `<i class="sw" style="background:${col}"></i>`; }
+</script>
+</body>
+</html>

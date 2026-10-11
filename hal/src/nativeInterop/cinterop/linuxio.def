@@ -1,0 +1,110 @@
+# Kernel interfaces the HAL uses directly. i2c-dev / spidev come from the
+# toolchain sysroot; the GPIO character-device v2 ABI (kernel >= 5.10) is
+# declared here verbatim from include/uapi/linux/gpio.h because the sysroot's
+# headers predate it. Layouts must match the kernel exactly: they are the ABI.
+package = space.boscon.hab.hal.linuxio
+headers = linux/i2c-dev.h linux/i2c.h linux/spi/spidev.h sys/ioctl.h
+compilerOpts = -D_GNU_SOURCE
+
+---
+#include <stdint.h>
+
+#define HAB_GPIO_MAX_NAME_SIZE 32
+#define HAB_GPIO_V2_LINES_MAX 64
+#define HAB_GPIO_V2_LINE_NUM_ATTRS_MAX 10
+
+struct hab_gpiochip_info {
+    char name[HAB_GPIO_MAX_NAME_SIZE];
+    char label[HAB_GPIO_MAX_NAME_SIZE];
+    uint32_t lines;
+};
+
+/* gpio_v2_line_flag */
+#define HAB_GPIO_V2_LINE_FLAG_USED            (1ULL << 0)
+#define HAB_GPIO_V2_LINE_FLAG_ACTIVE_LOW      (1ULL << 1)
+#define HAB_GPIO_V2_LINE_FLAG_INPUT           (1ULL << 2)
+#define HAB_GPIO_V2_LINE_FLAG_OUTPUT          (1ULL << 3)
+#define HAB_GPIO_V2_LINE_FLAG_EDGE_RISING     (1ULL << 4)
+#define HAB_GPIO_V2_LINE_FLAG_EDGE_FALLING    (1ULL << 5)
+#define HAB_GPIO_V2_LINE_FLAG_OPEN_DRAIN      (1ULL << 6)
+#define HAB_GPIO_V2_LINE_FLAG_OPEN_SOURCE     (1ULL << 7)
+#define HAB_GPIO_V2_LINE_FLAG_BIAS_PULL_UP    (1ULL << 8)
+#define HAB_GPIO_V2_LINE_FLAG_BIAS_PULL_DOWN  (1ULL << 9)
+#define HAB_GPIO_V2_LINE_FLAG_BIAS_DISABLED   (1ULL << 10)
+#define HAB_GPIO_V2_LINE_FLAG_EVENT_CLOCK_REALTIME (1ULL << 11)
+
+struct hab_gpio_v2_line_values {
+    uint64_t bits __attribute__((aligned(8)));
+    uint64_t mask __attribute__((aligned(8)));
+};
+
+/* gpio_v2_line_attr_id */
+#define HAB_GPIO_V2_LINE_ATTR_ID_FLAGS         1
+#define HAB_GPIO_V2_LINE_ATTR_ID_OUTPUT_VALUES 2
+#define HAB_GPIO_V2_LINE_ATTR_ID_DEBOUNCE      3
+
+struct hab_gpio_v2_line_attribute {
+    uint32_t id;
+    uint32_t padding;
+    union {
+        uint64_t flags __attribute__((aligned(8)));
+        uint64_t values __attribute__((aligned(8)));
+        uint32_t debounce_period_us;
+    };
+};
+
+struct hab_gpio_v2_line_config_attribute {
+    struct hab_gpio_v2_line_attribute attr;
+    uint64_t mask __attribute__((aligned(8)));
+};
+
+struct hab_gpio_v2_line_config {
+    uint64_t flags __attribute__((aligned(8)));
+    uint32_t num_attrs;
+    uint32_t padding[5];
+    struct hab_gpio_v2_line_config_attribute attrs[HAB_GPIO_V2_LINE_NUM_ATTRS_MAX];
+};
+
+struct hab_gpio_v2_line_request {
+    uint32_t offsets[HAB_GPIO_V2_LINES_MAX];
+    char consumer[HAB_GPIO_MAX_NAME_SIZE];
+    struct hab_gpio_v2_line_config config;
+    uint32_t num_lines;
+    uint32_t event_buffer_size;
+    uint32_t padding[5];
+    int32_t fd;
+};
+
+#define HAB_GPIO_V2_LINE_EVENT_RISING_EDGE  1
+#define HAB_GPIO_V2_LINE_EVENT_FALLING_EDGE 2
+
+struct hab_gpio_v2_line_event {
+    uint64_t timestamp_ns __attribute__((aligned(8)));
+    uint32_t id;
+    uint32_t offset;
+    uint32_t seqno;
+    uint32_t line_seqno;
+    uint32_t padding[6];
+};
+
+/* ioctl request numbers, computed by the toolchain's own _IOC macros so the
+   direction/size encoding is the target's, not a hand-typed constant */
+static inline unsigned long hab_ioc_gpio_get_chipinfo(void)   { return _IOR(0xB4, 0x01, struct hab_gpiochip_info); }
+static inline unsigned long hab_ioc_gpio_v2_get_line(void)     { return _IOWR(0xB4, 0x07, struct hab_gpio_v2_line_request); }
+static inline unsigned long hab_ioc_gpio_v2_set_config(void)   { return _IOWR(0xB4, 0x0D, struct hab_gpio_v2_line_config); }
+static inline unsigned long hab_ioc_gpio_v2_get_values(void)   { return _IOWR(0xB4, 0x0E, struct hab_gpio_v2_line_values); }
+static inline unsigned long hab_ioc_gpio_v2_set_values(void)   { return _IOWR(0xB4, 0x0F, struct hab_gpio_v2_line_values); }
+static inline unsigned long hab_ioc_i2c_rdwr(void)             { return I2C_RDWR; }
+static inline unsigned long hab_ioc_spi_message(int n)         { return SPI_IOC_MESSAGE(n); }
+static inline unsigned long hab_ioc_spi_wr_mode(void)          { return SPI_IOC_WR_MODE; }
+static inline unsigned long hab_ioc_spi_wr_max_speed(void)     { return SPI_IOC_WR_MAX_SPEED_HZ; }
+static inline unsigned long hab_ioc_spi_wr_bits(void)          { return SPI_IOC_WR_BITS_PER_WORD; }
+
+/* sizeof checks: the kernel ABI sizes, asserted at compile time */
+_Static_assert(sizeof(struct hab_gpiochip_info) == 68, "gpiochip_info size");
+_Static_assert(sizeof(struct hab_gpio_v2_line_values) == 16, "line_values size");
+_Static_assert(sizeof(struct hab_gpio_v2_line_attribute) == 16, "line_attribute size");
+_Static_assert(sizeof(struct hab_gpio_v2_line_config_attribute) == 24, "line_config_attribute size");
+_Static_assert(sizeof(struct hab_gpio_v2_line_config) == 272, "line_config size");
+_Static_assert(sizeof(struct hab_gpio_v2_line_request) == 592, "line_request size");
+_Static_assert(sizeof(struct hab_gpio_v2_line_event) == 48, "line_event size");
