@@ -1,10 +1,10 @@
 rootProject.name = "hab1-payload"
 
 pluginManagement {
-    repositories { gradlePluginPortal(); mavenCentral() }
+    repositories { gradlePluginPortal(); mavenCentral(); google() }
 }
 dependencyResolutionManagement {
-    repositories { mavenCentral() }
+    repositories { mavenCentral(); google() }
 }
 
-include(":hal", ":protocol", ":drivers", ":llm", ":agent", ":analysis", ":flightd", ":probes")
+include(":hal", ":protocol", ":drivers", ":llm", ":agent", ":analysis", ":flightd", ":probes", ":station")

@@ -41,7 +41,7 @@ systemd ──┬── flightd (Kotlin/Native, one process, coroutines)
 Repository layout (`payload/`, Gradle Kotlin Multiplatform):
 `hal/` (linuxArm64 + macosArm64 for host tests), `probes/` (one executable
 per bench probe), later `drivers/`, `protocol/`, `analysis/`, `llm/`,
-`agent/`, `flightd/`, `station/` (ground station, Compose Desktop).
+`agent/`, `analysis/`, `flightd/`, `station/` (HAB-1 Station: the Mac console, Compose Desktop, reads the Pi over SSH).
 
 Build host is the Mac; Kotlin/Native cannot build on an aarch64 Linux host.
 Logic lives in common modules so it is unit-tested on the Mac; linuxArm64

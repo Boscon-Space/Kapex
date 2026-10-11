@@ -230,6 +230,33 @@ Newest session first. One entry per session; bullets are what actually happened.
   (`RuntimeWatchdogSec` in /etc/systemd/system.conf) and pack-voltage input
   to the guards (no battery on the bench).
 
+**HAB-1 Station (Mac console)**
+- Aditya asked for one Mac application showing and controlling everything:
+  Pi connection, pins, Heltec/radio, data charts, prompts in/out, the Kotlin
+  analysis, fan control, a code editor for the bridge sketch and the Kotlin
+  modules with check/build/flash/deploy, Wi-Fi settings, hardware watchdog —
+  all from real data, nothing sampled.
+- `station/`: Compose for Desktop (CMP 1.12.1, Kotlin 2.4.10), JVM, reuses
+  `protocol` and `analysis` as libraries. One SSH round trip every 2 s runs
+  `POLL_SCRIPT` on the Pi (system, temp/throttle/PMIC volts, memory/disk,
+  pwm-fan, services with NRestarts/StatusText, ttyUSB0, `pinctrl get 0-27`,
+  tail of the newest /log NDJSON, flightd journal lines, nmcli, watchdog
+  config); every panel renders from that snapshot or says "No connection".
+  Tabs: Overview, Pins (live header drawing + kernel line table), Radio
+  (cadence from log timestamps, flash-via-Pi), Data (four single-axis hover
+  charts), Prompts (writes ~/prompts/*.txt over ssh, history from the log),
+  Analysis (same Rolling/ChannelMonitor/AltitudeProfile code run on the Mac),
+  Fan (rpm/pwm/curve, manual pwm override + auto), Code (editor with Save,
+  Check = arduino-cli / gradle+tests, Flash via Pi, Build+deploy flightd),
+  Settings (host/key/repo, Pi Wi-Fi via nmcli — password sent to the Pi,
+  never stored —, hardware watchdog enable/disable via RuntimeWatchdogSec,
+  reboot/poweroff). Charts follow the dataviz rules: one measure per axis,
+  2 px line, validated palette hue, hover crosshair. Compiles clean; runs
+  with `gradle :station:run`; verified alive from the Pi's side (sshd logs
+  the station's key logins at the poll cadence). Screen capture from this
+  session was refused by macOS (no Screen Recording permission), so the
+  panels' appearance is Aditya's to judge; no panel shows sample data.
+
 **End of session state:** bench = Pi 5 on the 5 A supply with the fan on,
 Heltec TX as the SPI bridge (v4) on USB, BMP280 on I²C, jumpers 11–13 and
 19–21, Mac over the phone hotspot, **`hab1-flightd.service` running**:

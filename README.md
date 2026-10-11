@@ -15,6 +15,7 @@ bench bring-up log.
 | `tools/run_probe.sh` | Build a probe, copy it to the Pi, run it. |
 | `tools/pi_service.sh` | Install/control the continuous telemetry beacon service on the Pi. |
 | `systemd/` | Unit files deployed to the Pi. |
+| `station/` | HAB-1 Station: Compose for Desktop console for the Mac — `gradle :station:run`. |
 | `tools/flash_bridge.sh` | Build the Heltec bridge sketch on the Mac and have the Pi flash it over USB, with rollback to the last good image. |
 | `image/` | Downloaded image + per-machine `user-data`/`network-config` (git-ignored). |
 
