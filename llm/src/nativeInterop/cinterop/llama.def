@@ -1,0 +1,4 @@
+package = space.boscon.hab.llm.native
+headers = llama.h
+compilerOpts = -DLLAMA_SHARED -I/Users/adityashinde/Documents/Developer/crazy/BosconSpace/payload/llm/native/include
+linkerOpts = -L/Users/adityashinde/Documents/Developer/crazy/BosconSpace/payload/llm/native/lib -lllama -lggml -lggml-base -lggml-cpu --rpath=/home/hab/llama/install/lib

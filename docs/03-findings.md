@@ -109,6 +109,30 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
 - A zero-filled app image leaves the board silent (no ping), which the
   rollback script detects and repairs from `~/bridge/last-good`.
 
+## LLM on this board (verified 2026-10-11)
+
+- llama.cpp commit a9d27ac built natively on the Pi in 8 min (Release,
+  GGML_NATIVE, shared libs). Qwen2.5-1.5B-Instruct Q4_K_M = 1.04 GiB,
+  1.78 B params.
+- **C++ baseline, `llama-bench -t 4`:** prompt 61.58 ± 0.01 tok/s (pp64),
+  **generation 12.06 ± 0.03 tok/s (tg128)**. Above the plan's 8 tok/s line.
+- SoC temperature right after the bench: **77.4 °C** with whatever cooling is
+  on the bench board — the throttle band starts at 80 °C. Sustained
+  inference needs the active cooler / conduction path before any long test.
+- **Kotlin in-process (`llm_probe`, cinterop to libllama, greedy, ctx 512,
+  4 threads):** load 2443 ms (1777 M params, 1059 MiB, MMAP+MLOCK); prompt
+  80 tok in 1306 ms (61 tok/s); generation 52 tok in 4353 ms = **11.9
+  tok/s**, 3 tok at 12.0 tok/s — i.e. no measurable overhead over the C++
+  baseline. Both answers stopped on eos; "17 times 23" → "391". SoC 63.7 °C
+  after the run (short run; the bench put it at 77.4 °C).
+- llama.cpp's `cmake --install` ships the ggml headers/libs but **not**
+  `llama.h` or `libllama.so`; they come from `src/include` and `build/bin`.
+  Kotlin/Native calls `ld.lld` directly: use `--rpath=…`, not `-Wl,-rpath`.
+  Opaque structs land in `cnames.structs`; C enum values are top-level
+  constants.
+- Power during inference not yet measured: the Pi 5 PMIC ADC reports input
+  *voltage* and core current, not input current. Needs an inline USB-C meter.
+
 ## Not verified / open
 
 - Why the Mac never enumerates the Pi in gadget mode (EEPROM update pending

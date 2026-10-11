@@ -14,7 +14,7 @@ Status: ☐ not started · ◐ in progress · ☑ passed on the board · ✗ fai
 | M6 | SPI + SX1262 over Heltec bridge | Kotlin driver reads SX1262 silicon version via the bridge | ☑ ping, reset→BUSY low, GetStatus 0x2A STDBY_RC, version "SX1261 V2D 2D02" (`radio_probe`); failed first without the bridge attached | 2026-10-11 |
 | M7a | Telemetry downlink from Kotlin | 09_telemetry_rx receives frames sent by the Pi through the bridge | ☑ 60/60 TX_DONE, received and displayed on the RX TFT (Aditya's observation); failed first on the status-byte bugs | 2026-10-11 |
 | M7 | Mission link round trip | 20/20 prompt→answer round trips on 867.3 MHz GFSK | ☐ | |
-| M8 | llama.cpp in-process | Qwen2.5-1.5B ≥ 8 tok/s, power measured at USB-C | ☐ | |
+| M8 | llama.cpp in-process | Qwen2.5-1.5B ≥ 8 tok/s, power measured at USB-C | ☑ speed: Kotlin `llm_probe` 11.9 tok/s generation (C++ baseline 12.06), load 2.4 s, 1059 MiB mlocked, 17×23=391, eos stops. Power: **not yet measured** (needs an inline USB-C meter) | 2026-10-11 |
 | M9 | Agent loop | prompt → `read_sensors` tool → answer, with guards exercised (one refused) | ☐ | |
 | M10 | Sensor suite drivers | AS7331, AS7341, BNO085, Geiger each with a probe that can fail | ☐ | |
 | M11 | Analysis module | unit tests on the Mac; Pfotzer peak found in a synthetic profile | ☐ | |

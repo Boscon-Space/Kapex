@@ -158,6 +158,25 @@ Newest session first. One entry per session; bullets are what actually happened.
   pin. Aditya parked it: indoors anyway, and the GPS will go on the Pi's own
   UART later.
 
+**M8 started: llama.cpp in-process**
+- Aditya OK'd ~1.2 GB over the hotspot. `tools/pi_llama_setup.sh` runs
+  detached on the Pi: shallow clone of ggml-org/llama.cpp (commit a9d27ac,
+  2026-10-11), native Release build (GGML_NATIVE, shared libs), install to
+  `~/llama/install`, download Qwen2.5-1.5B-Instruct Q4_K_M (~1.1 GB) to
+  `~/models`, then a C++ `llama-bench` baseline (4 threads, 128 tokens).
+- This llama.cpp has `llama_model_params.load_mode` (enum: MMAP, MLOCK,
+  MMAP_MLOCK …) instead of the older use_mmap/use_mlock booleans.
+- New `llm/` module: cinterop on `llama.h` (headers + .so pulled from the
+  Pi by `tools/pi_llama_pull.sh`, rpath `/home/hab/llama/install/lib`),
+  `Llm` wrapper (load mlocked, ChatML prompt, greedy sampling, max-token and
+  wall-clock guards), `llm_probe` (two fixed prompts, ≥ 8 tok/s, 17×23=391).
+  Build/link fixes: include path via the `.def`, `llama.h`/`libllama.so`
+  missing from llama.cpp's install tree (pulled from src/build), link flags
+  belong in the `.def` so the probes executable inherits them, lld wants
+  `--rpath=`. Then **`llm_probe` ALL PASS on the Pi**: 11.9 tok/s generation
+  vs 12.06 C++ baseline, deterministic answers, eos stops, 17×23=391. M8
+  speed done; power still unmeasured (no inline meter).
+
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
 11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`
