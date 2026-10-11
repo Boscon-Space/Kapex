@@ -46,7 +46,12 @@ fun RadioPanel(station: Station, snap: PiSnapshot?) {
         KV("link", "GFSK 38.4 kb/s, 866.1 MHz, ±40 kHz, sync 2D D4, CRC-16 — identical to firmware/08 so 09_telemetry_rx receives it")
         SectionTitle("Bridge firmware (firmware/23_spi_bridge)")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            Button(onClick = { station.runLocal("flash bridge from the Pi (compile on Mac, flash with rollback)", listOf("payload/tools/flash_bridge.sh"), java.io.File(Settings.repo)) }) { Text("Compile + flash via Pi") }
+            var confirm by remember { mutableStateOf(false) }
+            Button(onClick = { confirm = true }) { Text("Compile + flash via Pi") }
+            if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("Flash the bridge?") },
+                text = { Text("Stops flightd (the beacon goes quiet ~90 s), flashes the Heltec from the Pi, pings it, rolls back on failure, restarts flightd.") },
+                confirmButton = { Button(onClick = { confirm = false; station.runLocal("flash bridge from the Pi (compile on Mac, flash with rollback)", listOf("payload/tools/flash_bridge.sh"), java.io.File(Settings.repo)) }) { Text("Flash") } },
+                dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancel") } })
             OutlinedButton(onClick = { station.runRemote("restart flightd", "sudo systemctl restart hab1-flightd.service && sleep 6 && systemctl --no-pager status hab1-flightd.service | head -5") }) { Text("Restart flightd") }
         }
         SectionTitle("Output"); Card(Modifier.fillMaxWidth().height(260.dp)) { Column(Modifier.padding(8.dp).verticalScroll(rememberScrollState())) { for (l in console.takeLast(80)) Text(l, style = MaterialTheme.typography.bodySmall) } }
@@ -91,6 +96,10 @@ fun PromptsPanel(station: Station, snap: PiSnapshot?) {
             }) { Text("Send") }
         }
         if (snap?.reachable != true) Unavailable(snap)
+        val console by station.console.collectAsState()
+        console.lastOrNull { it.contains("queue prompt") || it.startsWith("✓") || it.startsWith("✗") }?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = if (it.startsWith("✗")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant) }
+        val svc = snap?.services?.firstOrNull { it.name == "hab1-flightd" }
+        if (svc != null && svc.active != "active") Text("flightd is ${svc.active} — prompts wait in the queue until it is active", color = MaterialTheme.colorScheme.error)
         val answers = snap?.prompts ?: emptyList()
         if (pending != null && answers.none { it.kind == "answer" && it.name == pending }) Text("waiting for the answer to $pending … (the model runs on the Pi; a tool round trip takes ~6 s)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         SectionTitle("History (from the flight log)")

@@ -42,7 +42,10 @@ fun CodePanel(station: Station) {
                 Button(enabled = dirty && current != null, onClick = { current!!.writeText(text); dirty = false; station.log("saved ${current!!.name}") }) { Text("Save") }
                 if (isIno) {
                     OutlinedButton(onClick = { station.runLocal("arduino-cli compile (check)", listOf("arduino-cli", "compile", "--fqbn", "esp32:esp32:heltec_wifi_lora_32_V3", "firmware/23_spi_bridge"), repo) }) { Text("Check (compile)") }
-                    Button(onClick = { station.runLocal("flash bridge from the Pi (with rollback)", listOf("payload/tools/flash_bridge.sh"), repo) }) { Text("Flash via Pi") }
+                    var confirm by remember { mutableStateOf(false) }
+                    Button(onClick = { confirm = true }) { Text("Flash via Pi") }
+                    if (confirm) AlertDialog(onDismissRequest = { confirm = false }, title = { Text("Flash the bridge?") }, text = { Text("Stops flightd for ~90 s, flashes, pings, rolls back on failure, restarts flightd.") },
+                        confirmButton = { Button(onClick = { confirm = false; station.runLocal("flash bridge from the Pi (with rollback)", listOf("payload/tools/flash_bridge.sh"), repo) }) { Text("Flash") } }, dismissButton = { TextButton(onClick = { confirm = false }) { Text("Cancel") } })
                 }
                 if (isKt) {
                     OutlinedButton(onClick = { station.runLocal("gradle compile + tests", listOf("gradle", "--no-daemon", "-q", ":hal:compileKotlinLinuxArm64", ":drivers:macosArm64Test", ":protocol:macosArm64Test", ":agent:macosArm64Test", ":analysis:macosArm64Test"), File(repo, "payload")) }) { Text("Check (compile + tests)") }

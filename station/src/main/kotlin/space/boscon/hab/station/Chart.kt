@@ -1,7 +1,6 @@
 package space.boscon.hab.station
 
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,8 +20,7 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun LineChart(title: String, unit: String, points: List<Pair<Long, Double>>, decimals: Int = 1, modifier: Modifier = Modifier) {
-    val dark = isSystemInDarkTheme()
-    val series = if (dark) Color(0xFF3987E5) else Color(0xFF2A78D6)      // categorical slot 1, validated palette
+    val series = MaterialTheme.colorScheme.primary      // categorical slot 1 of the validated palette, as the theme primary
     val grid = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
     val ink = MaterialTheme.colorScheme.onSurface
     var hover by remember { mutableStateOf<Offset?>(null) }

@@ -34,7 +34,7 @@ fun PinsPanel(snap: PiSnapshot?) {
         Text("Pin 1 (square pad) is at the microSD end. Outer row = even pins, inner row = odd. Colour = live level (green high, grey low); label = kernel function.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         if (snap.pins.isEmpty()) Text("pinctrl returned nothing — is raspi-utils installed on the Pi?", color = MaterialTheme.colorScheme.error)
         Spacer(Modifier.height(10.dp))
-        Column(Modifier.background(Color(0xFF1F6F3F), RoundedCornerShape(10.dp)).padding(12.dp)) {
+        Column(Modifier.background(Palette.pcb, RoundedCornerShape(10.dp)).padding(12.dp)) {
             Text("board edge ↑", color = Color.White, style = MaterialTheme.typography.labelSmall)
             Row { for (p in 2..40 step 2) PinCell(p, snap) }
             Row { for (p in 1..39 step 2) PinCell(p, snap) }
@@ -45,7 +45,7 @@ fun PinsPanel(snap: PiSnapshot?) {
         for (g in snap.pins.keys.sorted()) { val pi = snap.pins[g]!!; val phys = HEADER.entries.firstOrNull { it.value.second == g }?.key
             Row(Modifier.padding(vertical = 1.dp)) {
                 Text("GPIO$g", Modifier.width(60.dp)); Text(phys?.toString() ?: "—", Modifier.width(50.dp)); Text(fnName(pi.function), Modifier.width(110.dp))
-                Text(pi.level, Modifier.width(60.dp), color = if (pi.level == "hi") Color(0xFF008300) else MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(pi.level, Modifier.width(60.dp), color = if (pi.level == "hi") Palette.good else MaterialTheme.colorScheme.onSurfaceVariant)
                 Text(pi.pull.ifBlank { "—" }, Modifier.width(60.dp)); Text(pi.alias, Modifier.width(180.dp), style = MaterialTheme.typography.bodySmall); Text(BENCH_USE[g] ?: "", Modifier.width(200.dp), style = MaterialTheme.typography.bodySmall)
             } }
     }
@@ -56,10 +56,10 @@ fun fnName(f: String) = when (f) { "ip" -> "input"; "op" -> "output"; "no" -> "n
 @Composable
 private fun PinCell(phys: Int, snap: PiSnapshot) {
     val (label, gpio) = HEADER[phys]!!; val pi = gpio?.let { snap.pins[it] }
-    val bg = when { label == "GND" -> Color(0xFF222222); label == "5V" -> Color(0xFFC62828); label == "3V3" -> Color(0xFFE6A700)
-        pi == null -> Color(0xFFBDBDBD); pi.level == "hi" -> Color(0xFF2E7D32); else -> Color(0xFF616161) }
+    val bg = when { label == "GND" -> Palette.gnd; label == "5V" -> Palette.v5; label == "3V3" -> Palette.v33
+        pi == null -> Color(0xFF8E98A6); pi.level == "hi" -> Palette.good; else -> Color(0xFF4A5563) }
     val fg = if (label == "3V3") Color.Black else Color.White
-    Column(Modifier.padding(2.dp).width(42.dp).height(46.dp).background(bg, RoundedCornerShape(if (phys == 1) 0.dp else 5.dp)).border(if (gpio != null && BENCH_USE.containsKey(gpio)) 2.dp else 0.dp, Color(0xFFEF6C00), RoundedCornerShape(5.dp)), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
+    Column(Modifier.padding(2.dp).width(42.dp).height(46.dp).background(bg, RoundedCornerShape(if (phys == 1) 0.dp else 5.dp)).border(if (gpio != null && BENCH_USE.containsKey(gpio)) 2.dp else 0.dp, Palette.warn, RoundedCornerShape(5.dp)), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center) {
         Text("$phys", color = fg, style = MaterialTheme.typography.labelMedium); Text(label, color = fg, style = MaterialTheme.typography.labelSmall)
         if (pi != null) Text(fnName(pi.function).take(6), color = fg, style = MaterialTheme.typography.labelSmall)
     }

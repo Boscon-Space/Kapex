@@ -49,11 +49,12 @@ enum class Tab(val label: String, val icon: ImageVector) {
 fun main() = application {
     val station = remember { Station() }
     Window(onCloseRequest = ::exitApplication, title = "HAB-1 Station", state = rememberWindowState(width = 1380.dp, height = 900.dp)) {
-        MaterialTheme(colorScheme = if (androidx.compose.foundation.isSystemInDarkTheme()) darkColorScheme() else lightColorScheme()) {
+        val dark = remember { androidx.compose.foundation.isSystemInDarkTheme() }   // decided once at start-up
+        MaterialTheme(colorScheme = if (dark) DarkScheme else LightScheme) {
             var tab by remember { mutableStateOf(Tab.OVERVIEW) }
             val snap by station.snapshot.collectAsState()
-            Row(Modifier.fillMaxSize()) {
-                NavigationRail {
+            androidx.compose.material3.Surface(Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) { Row(Modifier.fillMaxSize()) {
+                NavigationRail(containerColor = MaterialTheme.colorScheme.surfaceContainerLow) {
                     Spacer(Modifier.height(8.dp))
                     for (t in Tab.entries) NavigationRailItem(selected = tab == t, onClick = { tab = t }, icon = { Icon(t.icon, t.label) }, label = { Text(t.label) })
                     Spacer(Modifier.weight(1f))
@@ -73,14 +74,14 @@ fun main() = application {
                         Tab.SETTINGS -> SettingsPanel(station, snap)
                     }
                 }
-            }
+            } }
         }
     }
 }
 
 @Composable
 fun ConnectionDot(snap: PiSnapshot?) {
-    val (txt, color) = when { snap == null -> "connecting…" to MaterialTheme.colorScheme.outline; snap.reachable -> "online" to androidx.compose.ui.graphics.Color(0xFF008300); else -> "offline" to MaterialTheme.colorScheme.error }
+    val (txt, color) = when { snap == null -> "connecting…" to MaterialTheme.colorScheme.outline; snap.reachable -> "online" to Palette.good; else -> "offline" to MaterialTheme.colorScheme.error }
     Column(horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally) {
         Icon(Icons.Filled.Circle, txt, tint = color, modifier = Modifier.size(12.dp)); Text(txt, style = MaterialTheme.typography.labelSmall)
     }

@@ -38,7 +38,7 @@ echo "@@fan"; for h in /sys/class/hwmon/hwmon*; do [ "${'$'}(cat ${'$'}h/name)" 
 echo "@@svc"; for s in hab1-flightd hab1-telemetry; do echo "${'$'}s ${'$'}(systemctl is-active ${'$'}s.service) ${'$'}(systemctl is-enabled ${'$'}s.service 2>/dev/null) ${'$'}(systemctl show -p NRestarts --value ${'$'}s.service) ${'$'}(systemctl show -p MainPID --value ${'$'}s.service) ${'$'}(systemctl show -p StatusText --value ${'$'}s.service)"; done
 echo "@@tty"; ls /dev/ttyUSB0 2>/dev/null
 echo "@@pins"; pinctrl get 0-27 2>/dev/null
-echo "@@log"; f=${'$'}(ls -t /log/flight/*.ndjson 2>/dev/null | head -1); echo "${'$'}f ${'$'}(wc -l < ${'$'}f 2>/dev/null)"; [ -n "${'$'}f" ] && tail -n 400 "${'$'}f"
+echo "@@log"; f=${'$'}(ls -t /log/flight/*.ndjson 2>/dev/null | head -1); echo "${'$'}f ${'$'}(wc -l < ${'$'}f 2>/dev/null)"; [ -n "${'$'}f" ] && tail -n 400 "${'$'}f"; ls -t /log/flight/*.ndjson 2>/dev/null | head -4 | xargs -r grep -h '"kind":"prompt"\|"kind":"answer"' 2>/dev/null | tail -60
 echo "@@journal"; journalctl -u hab1-flightd.service -n 400 --no-pager -o cat 2>/dev/null | grep -E "^radio |^flightd |^llm:|^bmp280:|^prompt |^answered |^refused |^tx error|^FATAL" | tail -30
 echo "@@wifi"; nmcli -t -f ACTIVE,SSID,SIGNAL dev wifi 2>/dev/null | grep "^yes" | head -1; hostname -I | awk '{print ${'$'}1}'
 echo "@@wd"; ls /dev/watchdog 2>/dev/null; grep -h "^RuntimeWatchdogSec" /etc/systemd/system.conf /etc/systemd/system.conf.d/*.conf 2>/dev/null | tail -1; grep -h "^WatchdogSec" /etc/systemd/system/hab1-flightd.service 2>/dev/null

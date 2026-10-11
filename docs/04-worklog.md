@@ -257,6 +257,22 @@ Newest session first. One entry per session; bullets are what actually happened.
   session was refused by macOS (no Screen Recording permission), so the
   panels' appearance is Aditya's to judge; no panel shows sample data.
 
+**Incident 19:57: bridge erased by a flash that raced flightd**
+- Aditya reported the station's prompts not working. Cause chain: a bridge
+  flash was started from the station at 19:57:42 while `hab1-flightd` owned
+  /dev/ttyUSB0. `pi_bridge_flash.sh` only stopped the *old* `hab1-telemetry`
+  service, so esptool wrote the chip while flightd kept talking on the same
+  port: the app partition ended up erased (`invalid header: 0xffffffff` on
+  the boot log at 115200), the rollback raced the same way, and the script
+  then *started* hab1-telemetry, whose `Conflicts=` stopped flightd. Every
+  flightd restart since hung at the bridge handshake until the 120 s start
+  timeout. The station's Send had worked all along (files were in ~/prompts).
+- Fix: the flash script now stops both services, kills any port user,
+  refuses to flash if the port is still busy, and restarts the service that
+  was running (flightd by default). Bridge reflashed from the Pi; flightd
+  back. Lesson for the record: **one owner of /dev/ttyUSB0 at a time**, and a
+  tool that takes the port must take it from everyone.
+
 **End of session state:** bench = Pi 5 on the 5 A supply with the fan on,
 Heltec TX as the SPI bridge (v4) on USB, BMP280 on I²C, jumpers 11–13 and
 19–21, Mac over the phone hotspot, **`hab1-flightd.service` running**:

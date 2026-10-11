@@ -108,6 +108,10 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   esptool 4.7.0 is missing `stub_flasher_32s3.json`; `--no-stub` works.
 - A zero-filled app image leaves the board silent (no ping), which the
   rollback script detects and repairs from `~/bridge/last-good`.
+- Flashing while another process uses the port erases the app (boot ROM
+  then prints `invalid header: 0xffffffff` at 115200 in a loop, which reads
+  as a 0x00/0x80 byte stream at 921600). The ROM bootloader stays reachable,
+  so a clean reflash always recovers; nothing hardware-side is lost.
 
 ## LLM on this board (verified 2026-10-11)
 

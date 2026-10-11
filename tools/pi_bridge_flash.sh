@@ -36,7 +36,12 @@ sys.exit(1)
 PY
 }
 
-echo "== stopping beacon"; sudo systemctl stop hab1-telemetry.service
+# whichever service owns the port must be stopped first; flashing while a
+# process talks on /dev/ttyUSB0 erases the app and fails the write (2026-10-11)
+WAS=""; for s in hab1-flightd hab1-telemetry; do systemctl is-active --quiet $s.service && WAS="$WAS $s"; done
+echo "== stopping$WAS"; sudo systemctl stop hab1-flightd.service hab1-telemetry.service
+sudo fuser -k /dev/ttyUSB0 2>/dev/null; sleep 1
+if sudo fuser /dev/ttyUSB0 >/dev/null 2>&1; then echo "!! /dev/ttyUSB0 still busy; refusing to flash"; sudo systemctl start ${WAS:-hab1-flightd}.service; exit 4; fi
 echo "== flashing new"
 if flash "$NEW" && ping_bridge; then
   echo "== new bridge answers; promoting to last-good"; cp "$NEW"/*.bin "$GOOD"/; rc=0
@@ -47,6 +52,7 @@ else
     if flash "$GOOD" && ping_bridge; then echo "== last-good restored and answering"; rc=2; else echo "!! last-good did not answer either — bridge needs the Mac"; rc=3; fi
   else echo "!! no last-good image yet"; rc=3; fi
 fi
-echo "== starting beacon"; sudo systemctl start hab1-telemetry.service; sleep 4
-systemctl is-active hab1-telemetry.service; journalctl -u hab1-telemetry.service -n 2 --no-pager -o cat
+SVC=hab1-flightd; echo "$WAS" | grep -q telemetry && ! echo "$WAS" | grep -q flightd && SVC=hab1-telemetry
+echo "== starting $SVC"; sudo systemctl start $SVC.service; sleep 12
+systemctl is-active $SVC.service; journalctl -u $SVC.service -n 3 --no-pager -o cat | grep -E "^radio|^#|FATAL" | tail -2
 exit $rc
