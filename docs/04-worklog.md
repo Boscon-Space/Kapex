@@ -195,6 +195,16 @@ Newest session first. One entry per session; bullets are what actually happened.
   plus a 45/55/63/70 °C curve, rebooted: pwm-fan present, 3128 rpm, 48.8 °C,
   beacon back by itself. Setup script carries the same settings.
 
+**M11: analysis module**
+- `analysis/` (common Kotlin, no I/O): `Rolling` window stats,
+  `AltitudeProfile` (250 m bins, ascent/descent apart) + `findPeak`
+  (Regener-Pfotzer: max bin, ≥ 5 samples, ≥ 3× ground, not the top bin),
+  `BurstDetector` (spike ≥ 3 g then vertical rate < −1 m/s within 20 s;
+  free-fall ≤ 0.3 g for 0.5 s), `ChannelMonitor` (STUCK/RATE/STALE),
+  `Reading.toPromptText()` ("unavailable", flags in brackets),
+  `baroAltitudeM`. 8/8 tests on the Mac incl. a synthetic 0–30 km ascent
+  with a Gaussian 14 cps peak at 19 km.
+
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
 11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`

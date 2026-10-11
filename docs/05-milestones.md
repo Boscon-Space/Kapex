@@ -17,7 +17,7 @@ Status: ☐ not started · ◐ in progress · ☑ passed on the board · ✗ fai
 | M8 | llama.cpp in-process | Qwen2.5-1.5B ≥ 8 tok/s, power measured at USB-C | ☑ speed: Kotlin `llm_probe` 11.9 tok/s generation (C++ baseline 12.06), load 2.4 s, 1059 MiB mlocked, 17×23=391, eos stops. Power: **not yet measured** (needs an inline USB-C meter) | 2026-10-11 |
 | M9 | Agent loop | prompt → `read_sensors` tool → answer, with guards exercised (one refused) | ☑ `agent_probe` on the Pi: tool called, answer quotes live 938.5 hPa (5.9 s, 2 rounds); direct answer without tool (3.6 s); ERR_HOT refused in 0 ms. Mac: scripted-engine tests tests="6" skipped="0" failures="0" | 2026-10-11 |
 | M10 | Sensor suite drivers | AS7331, AS7341, BNO085, Geiger each with a probe that can fail | ☐ | |
-| M11 | Analysis module | unit tests on the Mac; Pfotzer peak found in a synthetic profile | ☐ | |
+| M11 | Analysis module | unit tests on the Mac; Pfotzer peak found in a synthetic profile | ☑ 8/8: peak at 19 km ± 250 m on a synthetic ascent (ratio > 50), none on a monotonic rise; burst/free-fall state machine; spike-without-descent rejected; STUCK/RATE/STALE flags; honest prompt text | 2026-10-11 |
 | M12 | `flightd` as a systemd service | survives 24 h soak, watchdog restart demonstrated | ☐ | |
 | M13 | Camera capture to USB drive | 2 streams, 60 s segments, brownout loses ≤ 60 s | ☐ | |
 | M14 | Kotlin/Native go/no-go recorded | all of M1–M9 pass; else JVM fallback decision | ☐ | |
