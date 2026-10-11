@@ -1,0 +1,18 @@
+[Unit]
+Description=HAB-1 flightd (beacon + sensors + analysis + LLM agent)
+After=multi-user.target
+Conflicts=hab1-telemetry.service
+
+[Service]
+Type=notify
+User=hab
+ExecStart=/home/hab/flightd /dev/ttyUSB0 /home/hab/models/qwen2.5-1.5b-instruct-q4_k_m.gguf 22
+WatchdogSec=30
+TimeoutStartSec=120
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

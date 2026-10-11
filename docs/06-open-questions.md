@@ -25,6 +25,8 @@ Last updated: 2026-10-11
   our own grammar; to be measured at M9.
 
 ## Risks carried
+- flightd's 24 h soak started 2026-10-11 19:30 IST; check `tools/pi_flightd.sh status` (NRestarts) and the /log files next session.
+- Hardware watchdog not yet enabled (`RuntimeWatchdogSec=`); only the systemd service watchdog is.
 - Kotlin/Native linuxArm64 is Tier 2: pinned to 2.4.10; bump only between
   test blocks.
 - Hotspot address changes; always use `hab1.local`.

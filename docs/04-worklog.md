@@ -205,7 +205,41 @@ Newest session first. One entry per session; bullets are what actually happened.
   `baroAltitudeM`. 8/8 tests on the Mac incl. a synthetic 0–30 km ascent
   with a Gaussian 14 cps peak at 19 km.
 
-**End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
+**M12: flightd**
+- `flightd/`: one process — BMP280 → analysis (ChannelMonitor, Rolling
+  vertical rate, AltitudeProfile) → 28-byte frame → beacon through the
+  bridge → NDJSON `FlightLog` on /log (O_SYNC, 10-min rotation) → `Systemd`
+  watchdog pet (sd_notify over a Unix datagram, no libsystemd; `sockaddr_un`
+  declared in our own binding). Prompts: `PromptQueue` (a .txt dropped in
+  ~/prompts; answer in /log/answers) → `AgentLoop` on Dispatchers.Default so
+  the beacon never waits; guards fed with the SoC temperature each tick.
+  `systemd/hab1-flightd.service` (Type=notify, WatchdogSec=30), installed by
+  `tools/pi_flightd.sh install|status|log|prompt "…"`; replaces the
+  beacon-only service.
+- Two bench bugs: (1) I set `guards.busy` before handing the prompt to the
+  agent, so it refused its own prompt (ERR_BUSY); (2) `scp` over the running
+  binary fails with "text file busy" and the old binary kept running — the
+  install now copies beside and renames, and prints both hashes.
+- **Verified:** prompt → read_sensors → "The air pressure is 938.6 hPa, the
+  temperature is 30.7 degrees Celsius, and the barometric altitude is 641
+  meters…" while the beacon kept 1000 ± 6 ms cadence and zero TX failures;
+  SIGKILL → restart (counter 1); SIGSTOP → watchdog kill after 30 s, back in
+  40 s. The model's "this suggests a high-altitude environment" at 641 m is
+  the usual 1.5 B-model flourish; the numbers it quoted were the live ones.
+- Left running for the 24 h soak. Not yet: the hardware watchdog
+  (`RuntimeWatchdogSec` in /etc/systemd/system.conf) and pack-voltage input
+  to the guards (no battery on the bench).
+
+**End of session state:** bench = Pi 5 on the 5 A supply with the fan on,
+Heltec TX as the SPI bridge (v4) on USB, BMP280 on I²C, jumpers 11–13 and
+19–21, Mac over the phone hotspot, **`hab1-flightd.service` running**:
+beacon + sensors + analysis + LLM agent in one Kotlin binary, received by
+the RX Heltec. Milestones M0–M3, M5, M6a, M6, M7a, M8, M9, M11 passed; M12
+pending its soak. Next: M7 (prompt uplink over the radio into the same
+queue), M4/M10 when sensors arrive, M13 cameras, power measurement with an
+inline meter.
+
+**(superseded state note)** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
 11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`
 beaconing continuously on 866.1 MHz** and received by the RX Heltec.

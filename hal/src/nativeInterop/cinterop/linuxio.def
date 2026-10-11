@@ -9,6 +9,10 @@ compilerOpts = -D_GNU_SOURCE
 ---
 #include <stdint.h>
 
+/* Unix-domain socket address (sys/un.h), declared here because Kotlin/Native's
+   bundled posix bindings do not expose sockaddr_un. Same layout as the kernel's. */
+struct hab_sockaddr_un { unsigned short sun_family; char sun_path[108]; };
+
 #define HAB_GPIO_MAX_NAME_SIZE 32
 #define HAB_GPIO_V2_LINES_MAX 64
 #define HAB_GPIO_V2_LINE_NUM_ATTRS_MAX 10
