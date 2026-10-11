@@ -97,9 +97,50 @@ Newest session first. One entry per session; bullets are what actually happened.
   arguments to every probe; `tools/run_all_probes.sh` now runs the set
   correctly.) `i2cdetect` lives in /usr/sbin, not on the ssh PATH.
 
+**Telemetry transmitter in Kotlin (same session, after the commit)**
+- Committed the day's work as `2c918df`.
+- Read firmware/08 + 09 and the installed RadioLib 7.7.1 sources to reproduce
+  the GFSK link register-for-register: 866.1 MHz, 38.4 kb/s, ±40 kHz,
+  RX BW 156.2 kHz, preamble 16 bits, sync 2D D4, CRC-16 (init 0x1D0F, poly
+  0x1021, inverted), **no Gaussian shaping and whitening off** (7.7.1's
+  beginFSK defaults), TCXO 1.6 V on DIO3, DC-DC regulator, DIO2 as RF switch,
+  PA table row for 22 dBm = (duty 4, hpMax 7, paVal 22), the GFSK register
+  fixes (0x06D1, 0x089B, 0x08B8, 0x06AC), PA clamping fix (0x08D8 |= 0x1E).
+- New `protocol/` module: `TelemetryFrame` (28 bytes, little-endian) with
+  `FIELDS` that `tools/check_packet_abi.py` now compares against the C struct
+  (passes); `NmeaParser` (GGA/RMC, any talker); `Sx1262.beginGfsk/transmit`;
+  `BridgeBus.drainGps`; `firmware/23_spi_bridge` v2 forwards the NEO-6M's
+  bytes on 'N' (compiled 284 KB, **not yet uploaded**); `telemetry_tx`
+  program printing lines in 09's format. All 14 unit tests pass on the Mac
+  (frame layout/offsets/round-trip/altitude, NMEA, bit-rate 26666, fdev
+  41943, frf 908171648 = RadioLib's float32 value, PA table).
+- Bridge v2 flashed (ping OK). Two driver bugs found on the board, both
+  about the SX126x status byte: (1) the wake-up NOP's status carries the
+  previous command's flags — RadioLib does not check it; (2) **until
+  SetDIO3AsTCXOCtrl is sent, every command reports "failure to execute"
+  (0xAA)** because the Heltec's TCXO has not started — RadioLib ignores
+  status up to that point. Fixed by mirroring that.
+- **Kotlin transmits.** 15 then 60 frames, each confirmed by TX_DONE,
+  ~37 ms per frame including bridge round trips, status 0x22 after config,
+  BMP280 data in every frame (937.9 hPa, 30.8 °C). GPS: 0 sentences — the
+  NEO-6M is probably no longer connected to the Heltec after it was moved.
+  **Aditya confirmed the RX Heltec (09_telemetry_rx, TFT) shows the Pi's
+  frames.** First telemetry on air from Kotlin. Bridge v3 adds the OLED
+  status page (seq, hPa, °C, tx-done count, GPS sentences) and the white-LED
+  heartbeat on TX_DONE; flashed, ping OK.
+- Aditya: the beacon must run continuously. `systemd/hab1-telemetry.service`
+  (Restart=always, 5 s) + `tools/pi_service.sh install|status|restart|log`
+  installed and enabled on the Pi: `telemetry_tx 0 22 /dev/ttyUSB0` forever,
+  starts at boot, restarts if the bridge drops. **Running:** picked the
+  Heltec up by itself, `TX ok in 63 ms` per frame (the OLED redraw adds
+  ~25 ms to the bridge round trips), BMP280 in every frame. GPS still 0
+  sentences: the NEO-6M is not connected to the bridge Heltec.
+
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
-SPI bridge on USB, BMP280 on I²C, jumpers 11–13 and 19–21, Mac over the
-phone hotspot. Milestones M0–M3, M5, M6a, M6 passed. Next: M7 (first prompt
+SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
+11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`
+beaconing continuously on 866.1 MHz** and received by the RX Heltec.
+Milestones M0–M3, M5, M6a, M6, M7a passed. Next: M7 (first prompt
 round trip on 867.3 MHz GFSK) needs the RX Heltec's role decided; parts
 orders listed in `06-open-questions.md`.
   `baro_probe` without a sensor: FAIL, errno 121 (the failing half of M3).

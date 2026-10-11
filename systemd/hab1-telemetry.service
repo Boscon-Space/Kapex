@@ -1,0 +1,16 @@
+[Unit]
+Description=HAB-1 telemetry beacon (Kotlin telemetry_tx through the Heltec bridge)
+After=multi-user.target
+
+[Service]
+Type=simple
+User=hab
+# forever (count 0), 22 dBm, bridge on ttyUSB0
+ExecStart=/home/hab/telemetry_tx 0 22 /dev/ttyUSB0
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

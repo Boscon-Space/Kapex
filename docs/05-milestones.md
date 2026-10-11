@@ -12,6 +12,7 @@ Status: ☐ not started · ◐ in progress · ☑ passed on the board · ✗ fai
 | M5 | Edge counting | GPIO edge events counted at ≥ 1 kHz from a signal source without loss | ☑ 2000 pulses → 2000 rising + 2000 falling, 0 seqno gaps, at 1 kHz and ~3 kHz effective (`edge_probe`) | 2026-10-11 |
 | M6a | spidev verified | MOSI→MISO loopback 1280/1280 at 8 MHz with jumper, FAIL without | ☑ FAIL 1279/1280 without jumper, PASS 1280/1280 at 1/4/8 MHz with it | 2026-10-11 |
 | M6 | SPI + SX1262 over Heltec bridge | Kotlin driver reads SX1262 silicon version via the bridge | ☑ ping, reset→BUSY low, GetStatus 0x2A STDBY_RC, version "SX1261 V2D 2D02" (`radio_probe`); failed first without the bridge attached | 2026-10-11 |
+| M7a | Telemetry downlink from Kotlin | 09_telemetry_rx receives frames sent by the Pi through the bridge | ☑ 60/60 TX_DONE, received and displayed on the RX TFT (Aditya's observation); failed first on the status-byte bugs | 2026-10-11 |
 | M7 | Mission link round trip | 20/20 prompt→answer round trips on 867.3 MHz GFSK | ☐ | |
 | M8 | llama.cpp in-process | Qwen2.5-1.5B ≥ 8 tok/s, power measured at USB-C | ☐ | |
 | M9 | Agent loop | prompt → `read_sensors` tool → answer, with guards exercised (one refused) | ☐ | |

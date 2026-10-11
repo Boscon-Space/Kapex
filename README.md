@@ -13,6 +13,8 @@ bench bring-up log.
 | `tools/pi_firstboot_setup.sh` | Run once on the Pi: partitions, packages, journald, interfaces. |
 | `tools/pi.sh` | ssh/scp wrapper (default `hab1.local`; `PI_HOST=10.12.194.1` on the USB gadget link). |
 | `tools/run_probe.sh` | Build a probe, copy it to the Pi, run it. |
+| `tools/pi_service.sh` | Install/control the continuous telemetry beacon service on the Pi. |
+| `systemd/` | Unit files deployed to the Pi. |
 | `image/` | Downloaded image + per-machine `user-data`/`network-config` (git-ignored). |
 
 Build host: the Mac (Kotlin/Native cannot build on an aarch64 Linux host).

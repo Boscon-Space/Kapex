@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     repositories { mavenCentral() }
 }
 
-include(":hal", ":drivers", ":probes")
+include(":hal", ":protocol", ":drivers", ":probes")

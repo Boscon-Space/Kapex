@@ -10,12 +10,14 @@ kotlin {
             executable("baro_probe") { entryPoint = "space.boscon.hab.probes.baroProbe" }
             executable("spi_probe") { entryPoint = "space.boscon.hab.probes.spiProbe" }
             executable("radio_probe") { entryPoint = "space.boscon.hab.probes.radioProbe" }
+            executable("telemetry_tx") { entryPoint = "space.boscon.hab.probes.telemetryTx" }
         }
     }
     sourceSets {
         linuxArm64Main.dependencies {
             implementation(project(":hal"))
             implementation(project(":drivers"))
+            implementation(project(":protocol"))
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
         }
     }
