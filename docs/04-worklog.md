@@ -281,7 +281,10 @@ Newest session first. One entry per session; bullets are what actually happened.
   start if the port answers, otherwise retry every 10 s; detach on
   EIO/ENOENT/timeout and re-attach when it returns; `radio` flag in each
   tlm record. Station relaunch had failed on a `remember { isSystemInDarkTheme() }`
-  compile error (composable inside remember); fixed.
+  compile error (composable inside remember); fixed. Heltec returned at
+  20:30: flightd re-attached the radio by itself, 0 TX failures since.
+- **Aditya confirmed the station: colours stable, prompts working in the
+  app.** Overview and Pins were already showing live data.
 
 **End of session state:** bench = Pi 5 on the 5 A supply with the fan on,
 Heltec TX as the SPI bridge (v4) on USB, BMP280 on I²C, jumpers 11–13 and

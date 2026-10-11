@@ -21,4 +21,5 @@ Status: ☐ not started · ◐ in progress · ☑ passed on the board · ✗ fai
 | M12 | `flightd` as a systemd service | survives 24 h soak, watchdog restart demonstrated | ◐ installed, Type=notify + WatchdogSec=30; prompt answered with live sensors while the beacon held 1000 ± 6 ms; SIGKILL → restarted; SIGSTOP → `Failed with result 'watchdog'`, back in 40 s. **24 h soak pending** (left running 2026-10-11 19:30 IST) | 2026-10-11 |
 | M13 | Camera capture to USB drive | 2 streams, 60 s segments, brownout loses ≤ 60 s | ☐ | |
 | M14 | Kotlin/Native go/no-go recorded | all of M1–M9 pass; else JVM fallback decision | ☐ | |
+| M16 | HAB-1 Station (Mac console) | every panel live from the Pi, prompts round-trip through the app | ☑ Aditya: overview/pins live, colours stable, prompts working (2026-10-11 20:35) | 2026-10-11 |
 | M15 | Flight lock-down | read-only root, journald volatile, model mlocked, cold test passed | ☐ | |
