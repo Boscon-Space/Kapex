@@ -239,11 +239,6 @@ pending its soak. Next: M7 (prompt uplink over the radio into the same
 queue), M4/M10 when sensors arrive, M13 cameras, power measurement with an
 inline meter.
 
-**(superseded state note)** bench = Pi 5 on the 5 A supply, Heltec TX as the
-SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
-11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`
-beaconing continuously on 866.1 MHz** and received by the RX Heltec.
-Milestones M0–M3, M5, M6a, M6, M7a passed. Next: M7 (first prompt
 round trip on 867.3 MHz GFSK) needs the RX Heltec's role decided; parts
 orders listed in `06-open-questions.md`.
   `baro_probe` without a sensor: FAIL, errno 121 (the failing half of M3).
