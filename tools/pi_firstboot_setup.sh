@@ -56,7 +56,12 @@ swapoff -a || true
 
 echo "== 4. config.txt interfaces"
 CFG=/boot/firmware/config.txt
-for line in "dtparam=i2c_arm=on" "dtparam=spi=on" "enable_uart=1" "dtparam=uart0=on"; do
+for line in "dtparam=i2c_arm=on" "dtparam=spi=on" "enable_uart=1" "dtparam=uart0=on" \
+            "dtparam=cooling_fan=on" \
+            "dtparam=fan_temp0=45000,fan_temp0_hyst=5000,fan_temp0_speed=120" \
+            "dtparam=fan_temp1=55000,fan_temp1_hyst=5000,fan_temp1_speed=170" \
+            "dtparam=fan_temp2=63000,fan_temp2_hyst=5000,fan_temp2_speed=220" \
+            "dtparam=fan_temp3=70000,fan_temp3_hyst=5000,fan_temp3_speed=255"; do
   grep -q "^$line" "$CFG" || echo "$line" >> "$CFG"
 done
 # free the UART from the serial console for the GPS

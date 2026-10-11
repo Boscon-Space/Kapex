@@ -135,8 +135,11 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   correctly skipped for a general question (2 of 2 on the bench; small
   sample). A full tool round trip costs two model calls, ~5.9 s with a
   ~300-token context.
-- No fan detected (`/sys/class/thermal/cooling_device*` absent): nothing is
-  on the Pi 5 fan connector.
+- **Fan:** the Active Cooler was on the 4-pin connector but the firmware had
+  left the `cooling_fan` device-tree node *disabled* (no cooling device, fan
+  never ran — the 77.4 °C bench was unfanned). `dtparam=cooling_fan=on` in
+  config.txt fixes it; curve set to 45/55/63/70 °C → pwm 120/170/220/255.
+  Verified after reboot: `pwm-fan` state 1/4, 3128 rpm at pwm 120, 48.8 °C.
 - Power during inference not yet measured: the Pi 5 PMIC ADC reports input
   *voltage* and core current, not input current. Needs an inline USB-C meter.
 

@@ -190,8 +190,10 @@ Newest session first. One entry per session; bullets are what actually happened.
   directly (3.6 s, no tool); guard tripped at 86 °C → ERR_HOT in 0 ms.
   Qwen2.5-1.5B follows the one-line CALL grammar from a single system-prompt
   instruction, greedy sampling.
-- Fan: the kernel exposes no cooling device — no fan on the Pi's fan socket.
-  Asked Aditya what fan hardware is present.
+- Fan: Aditya confirmed the cooler is on the 4-pin socket; the device-tree
+  node was `disabled` by the firmware. Forced on with `dtparam=cooling_fan=on`
+  plus a 45/55/63/70 °C curve, rebooted: pwm-fan present, 3128 rpm, 48.8 °C,
+  beacon back by itself. Setup script carries the same settings.
 
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
