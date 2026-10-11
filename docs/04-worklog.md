@@ -273,6 +273,16 @@ Newest session first. One entry per session; bullets are what actually happened.
   back. Lesson for the record: **one owner of /dev/ttyUSB0 at a time**, and a
   tool that takes the port must take it from everyone.
 
+**Bridge unplugged for a check-up (Aditya) → flightd tolerance**
+- With the Heltec removed: flightd stayed active, logged `tx error: write
+  failed: Input/output error (errno 5)` each second, and still answered a
+  prompt in 8 s with the live 939.3 hPa. But a *restart* without the bridge
+  used to be FATAL. Changed: the radio is optional at any moment — attach at
+  start if the port answers, otherwise retry every 10 s; detach on
+  EIO/ENOENT/timeout and re-attach when it returns; `radio` flag in each
+  tlm record. Station relaunch had failed on a `remember { isSystemInDarkTheme() }`
+  compile error (composable inside remember); fixed.
+
 **End of session state:** bench = Pi 5 on the 5 A supply with the fan on,
 Heltec TX as the SPI bridge (v4) on USB, BMP280 on I²C, jumpers 11–13 and
 19–21, Mac over the phone hotspot, **`hab1-flightd.service` running**:

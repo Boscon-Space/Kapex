@@ -37,11 +37,18 @@ fun main(args: Array<String>) {
     fun info(msg: String) { println(msg); log.write("info", mapOf("msg" to jsonStr(msg))) }
     info("flightd starting: bridge=$dev model=$modelPath power=$power dBm watchdog=${Systemd.watchdogMs} ms")
 
-    // --- radio (the beacon must come up even if the LLM does not) ---
-    val port = LinuxSerialPort(dev, 921600); val bus = BridgeBus(port)
-    if (!bus.ping()) { info("FATAL bridge not answering on $dev"); exit(2) }
-    val radio = Sx1262(bus); radio.beginGfsk(Sx1262.GfskConfig(powerDbm = power))
-    info("radio ${radio.versionString()} GFSK 38.4k @ 866.1 MHz, $power dBm")
+    // --- radio: optional at any moment. The bridge Heltec may be absent at start
+    //     or unplugged mid-run (bench check-ups); flightd keeps sensors, log and
+    //     the agent going and re-attaches the radio when the port comes back. ---
+    var bus: BridgeBus? = null; var radio: Sx1262? = null; var radioRetryAt = 0L
+    fun attachRadio(): Boolean {
+        val b = try { BridgeBus(LinuxSerialPort(dev, 921600)) } catch (e: HalException) { return false }
+        if (!b.ping()) { b.close(); return false }
+        return try { val r = Sx1262(b); r.beginGfsk(Sx1262.GfskConfig(powerDbm = power)); bus = b; radio = r
+            info("radio ${r.versionString()} GFSK 38.4k @ 866.1 MHz, $power dBm — attached"); true } catch (e: Exception) { info("radio config failed: ${e.message}"); b.close(); false }
+    }
+    fun detachRadio(why: String) { info("radio detached: $why"); runCatching { bus?.close() }; bus = null; radio = null }
+    if (!attachRadio()) info("bridge not answering on $dev — beaconing suspended until it appears")
 
     // --- sensors ---
     val i2c = runCatching { LinuxI2cBus("/dev/i2c-1") }.getOrNull()
@@ -100,10 +107,16 @@ fun main(args: Array<String>) {
 
             // 2. frame + beacon
             val frame = TelemetryFrame(seq and 0xFF, 0f, 0f, 0f, pressPa, tempC100, altBaro, 0, flags, 0)
-            val ok = runCatching { radio.transmit(frame.encode()) }.onFailure { info("tx error: ${it.message}") }.isSuccess
-            if (ok) sent++ else txFail++
+            val nowMs = start.elapsedNow().inWholeMilliseconds
+            if (radio == null && nowMs >= radioRetryAt) { radioRetryAt = nowMs + 10_000; attachRadio() }
+            val r = radio
+            val ok = if (r == null) false else runCatching { r.transmit(frame.encode()) }.onFailure { e ->
+                txFail++; info("tx error: ${e.message}")
+                if (e is HalException && (e.errno == 5 || e.errno == 2 || e.errno == 110)) detachRadio("errno ${e.errno}")   // EIO/ENOENT: unplugged; ETIMEDOUT: bridge silent
+            }.isSuccess
+            if (ok) sent++
             log.write("tlm", mapOf("seq" to "${frame.seq}", "pressPa" to "$pressPa", "tempC" to "${tempC100 / 100.0}", "altBaro" to "$altBaro",
-                "soc" to "$socTempC", "tx" to "$ok", "flags" to "$flags"))
+                "soc" to "$socTempC", "tx" to "$ok", "radio" to "${radio != null}", "flags" to "$flags"))
             if (seq % 30 == 0) println("#$seq ${snapshot.toPromptText()} | tx ok $sent fail $txFail | log ${log.records} rec ${log.currentPath.substringAfterLast('/')}")
             seq++
 
@@ -132,7 +145,7 @@ fun main(args: Array<String>) {
         agentJob?.cancel()
     }
     info("flightd stopping: $sent frames sent, $txFail failed, ${log.records} log records")
-    log.close(); bus.close(); i2c?.close(); llm?.close()
+    log.close(); bus?.close(); i2c?.close(); llm?.close()
 }
 
 @OptIn(ExperimentalForeignApi::class)

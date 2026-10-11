@@ -49,7 +49,8 @@ enum class Tab(val label: String, val icon: ImageVector) {
 fun main() = application {
     val station = remember { Station() }
     Window(onCloseRequest = ::exitApplication, title = "HAB-1 Station", state = rememberWindowState(width = 1380.dp, height = 900.dp)) {
-        val dark = remember { androidx.compose.foundation.isSystemInDarkTheme() }   // decided once at start-up
+        val systemDark = androidx.compose.foundation.isSystemInDarkTheme()
+        val dark = remember { systemDark }   // decided once at start-up; later system flips do not restyle the session
         MaterialTheme(colorScheme = if (dark) DarkScheme else LightScheme) {
             var tab by remember { mutableStateOf(Tab.OVERVIEW) }
             val snap by station.snapshot.collectAsState()
