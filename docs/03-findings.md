@@ -130,6 +130,13 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   Kotlin/Native calls `ld.lld` directly: use `--rpath=…`, not `-Wl,-rpath`.
   Opaque structs land in `cnames.structs`; C enum values are top-level
   constants.
+- Tool calling with Qwen2.5-1.5B Q4 (greedy): a one-line `CALL <tool>` grammar
+  described once in the system prompt is followed for a sensor question and
+  correctly skipped for a general question (2 of 2 on the bench; small
+  sample). A full tool round trip costs two model calls, ~5.9 s with a
+  ~300-token context.
+- No fan detected (`/sys/class/thermal/cooling_device*` absent): nothing is
+  on the Pi 5 fan connector.
 - Power during inference not yet measured: the Pi 5 PMIC ADC reports input
   *voltage* and core current, not input current. Needs an inline USB-C meter.
 

@@ -177,6 +177,22 @@ Newest session first. One entry per session; bullets are what actually happened.
   vs 12.06 C++ baseline, deterministic answers, eos stops, 17×23=391. M8
   speed done; power still unmeasured (no inline meter).
 
+**M9: agent loop**
+- New `agent/` module (common Kotlin): `LlmEngine` interface, `Tool`,
+  `Guards` (ERR_BUSY / ERR_HOT > 80 °C / ERR_LOWBAT < 9.6 V, checked before
+  the model is touched), `AgentLoop` (ChatML turns; the model calls a tool by
+  replying `CALL <name>`; result fed back as a user turn; tool budget;
+  unknown-tool handling). Six scripted-engine tests on the Mac (tests="6" skipped="0" failures="0").
+- `agent_probe` on the Pi with the real model and the real BMP280 behind
+  `read_sensors`: **ALL PASS** — "What is the air pressure around you?" →
+  CALL read_sensors → "The air pressure around me is 938.5 hPa." (live
+  reading 938.5 hPa; 5.9 s, two model rounds); sky question answered
+  directly (3.6 s, no tool); guard tripped at 86 °C → ERR_HOT in 0 ms.
+  Qwen2.5-1.5B follows the one-line CALL grammar from a single system-prompt
+  instruction, greedy sampling.
+- Fan: the kernel exposes no cooling device — no fan on the Pi's fan socket.
+  Asked Aditya what fan hardware is present.
+
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
 11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`

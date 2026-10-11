@@ -12,6 +12,7 @@ kotlin {
             executable("radio_probe") { entryPoint = "space.boscon.hab.probes.radioProbe" }
             executable("telemetry_tx") { entryPoint = "space.boscon.hab.probes.telemetryTx" }
             executable("llm_probe") { entryPoint = "space.boscon.hab.probes.llmProbe" }
+            executable("agent_probe") { entryPoint = "space.boscon.hab.probes.agentProbe" }
         }
     }
     sourceSets {
@@ -20,6 +21,7 @@ kotlin {
             implementation(project(":drivers"))
             implementation(project(":protocol"))
             implementation(project(":llm"))
+            implementation(project(":agent"))
             implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
         }
     }
