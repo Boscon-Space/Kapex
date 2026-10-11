@@ -101,6 +101,14 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   docs/14, 15, 19 assumes +22 dBm. Needs a test that can fail: command
   +22 dBm and measure, or check Heltec's schematic/part marking.
 
+## Flashing the Heltec from the Pi (verified 2026-10-11)
+
+- The Heltec's CP2102 drives the ESP32-S3's auto-reset lines, so `esptool` on
+  the Pi flashes it over `/dev/ttyUSB0` exactly like the Mac does. Debian's
+  esptool 4.7.0 is missing `stub_flasher_32s3.json`; `--no-stub` works.
+- A zero-filled app image leaves the board silent (no ping), which the
+  rollback script detects and repairs from `~/bridge/last-good`.
+
 ## Not verified / open
 
 - Why the Mac never enumerates the Pi in gadget mode (EEPROM update pending

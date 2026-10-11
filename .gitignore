@@ -10,3 +10,4 @@ build/
 **/build/
 .kotlin/
 *.kexe
+build/

@@ -136,6 +136,20 @@ Newest session first. One entry per session; bullets are what actually happened.
   ~25 ms to the bridge round trips), BMP280 in every frame. GPS still 0
   sentences: the NEO-6M is not connected to the bridge Heltec.
 
+**Flashing the bridge from the Pi (no more trips to the Mac)**
+- Aditya asked whether the TX firmware can be updated from the Pi itself and
+  to make sure there is a way out of a bad flash. `tools/flash_bridge.sh`
+  (Mac: arduino-cli compile with `--output-dir`, push bootloader /
+  partitions / boot_app0 / app to `~/bridge/new`) + `tools/pi_bridge_flash.sh`
+  (Pi: stop the beacon, `esptool --no-stub` over /dev/ttyUSB0 at the
+  arduino-cli offsets 0x0/0x8000/0xe000/0x10000, ping; on no answer flash
+  `~/bridge/last-good` back; restart the beacon).
+- Debian's `esptool` 4.7.0 package lacks the ESP32-S3 stub flasher file, so
+  it crashes unless run with `--no-stub` (ROM loader, 460800 baud, ~1 min).
+- Verified: identical image flashed from the Pi, bridge answered, promoted to
+  last-good, beacon resumed. **Rollback proven**: a zero-filled app image →
+  no answer → last-good flashed back → answering → beacon active.
+
 **End of session state:** bench = Pi 5 on the 5 A supply, Heltec TX as the
 SPI bridge (v3: GPS forward + OLED + LED) on USB, BMP280 on I²C, jumpers
 11–13 and 19–21, Mac over the phone hotspot, **`hab1-telemetry.service`
