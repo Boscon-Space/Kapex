@@ -41,6 +41,26 @@ Newest session first. One entry per session; bullets are what actually happened.
   renamed binary was not deployed to or run on the Pi, and the station was compiled but
   not launched. Staged in git as 83 renames, not committed. Old worklog entries keep the
   old names on purpose.
+- **Kapex moved to its own repository**, https://github.com/developerchunk/Kapex
+  (PUBLIC, was empty). The 16 earlier commits of `payload/` were extracted with
+  `filter-branch --subdirectory-filter` from a clean clone and kept, then one commit
+  records the rename (41 package moves detected as renames). Before the push the whole
+  history was scanned for secrets: no password, key, token or hash; the only personal
+  data is the Pi login `hab@hab1.local`, two private LAN addresses (10.12.194.1,
+  10.18.98.33) and a local home path in `llm/.../llama.def`; no file over 200 KB was ever
+  committed. The scan was pattern based, not exhaustive. Commit author identity
+  `Developer Chunk` and its email are visible in the public history.
+- The parent repo now holds `kapex/` as a git submodule pinned to the pushed commit.
+  Proven with a fresh `git clone --recurse-submodules`: 84 files, 17 commits, no old
+  `payload/` folder. Work on Kapex is committed and pushed inside `kapex/`, then the
+  parent's pointer is bumped with a commit in the parent.
+- New strict rule in CLAUDE.md: no em dashes anywhere. Site pages and this folder's
+  README and Kotlin write-up are clean; older docs here still have some, to be removed
+  when touched. Checker: `website/tools/check_no_em_dash.py`.
+- Known rough edges for a public repo: `README.md` and `docs/00-README.md` link to
+  parent-repo paths (`../docs/35-...`, `../../CLAUDE.md`) that do not exist in the
+  standalone repo; `llm/.../llama.def` has an absolute path under `/Users/adityashinde`;
+  there is no LICENSE file yet.
 
 ## 2026-10-11 — plan, docs, Pi bring-up, first Kotlin code
 
