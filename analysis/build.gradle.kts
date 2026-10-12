@@ -5,6 +5,7 @@ plugins { kotlin("multiplatform") }
 // anomaly flags the agent can read. Same code runs on the Pi and in the
 // ground station's replay; unit-tested on the Mac with synthetic flights.
 kotlin {
+    jvmToolchain(21)   // the station bundles a Java 22 runtime; newer class files would not load
     linuxArm64()
     macosArm64()
     jvm()

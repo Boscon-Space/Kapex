@@ -4,6 +4,7 @@ plugins { kotlin("multiplatform") }
 // outside the loop. Pure Kotlin against an LlmEngine interface, so it is
 // unit-tested on the Mac with a scripted engine; the Pi plugs in llm/Llm.
 kotlin {
+    jvmToolchain(21)   // the station bundles a Java 22 runtime; newer class files would not load
     linuxArm64()
     macosArm64()
     jvm()

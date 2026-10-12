@@ -15,6 +15,11 @@ Newest session first. One entry per session; bullets are what actually happened.
   written now; without it an app launched from /Applications would not find
   the tools.
 - Removed the 18 em dashes from the station's UI strings (rule in CLAUDE.md).
+- Crash on the Analysis tab in the installed app: `UnsupportedClassVersionError`,
+  `analysis.Rolling` compiled as class file 70 (Java 26, Gradle's own JVM)
+  while the bundle ships a Java 22 runtime. The library modules had no
+  toolchain pin; `protocol`, `analysis`, `agent` now `jvmToolchain(21)` like
+  the station (verified: jar class version 65). Reinstalled.
 - Not done: a login item (start at login) awaits Aditya's yes.
 
 ## 2026-10-12 — JetBrains pitch page and email
