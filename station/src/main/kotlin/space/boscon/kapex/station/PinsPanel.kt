@@ -30,9 +30,9 @@ val BENCH_USE = mapOf(2 to "BMP280 SDA", 3 to "BMP280 SCL", 17 to "loopback out 
 fun PinsPanel(snap: PiSnapshot?) {
     if (snap == null || !snap.reachable) { Unavailable(snap); return }
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("40-pin header — live from pinctrl", style = MaterialTheme.typography.titleLarge)
+        Text("40-pin header: live from pinctrl", style = MaterialTheme.typography.titleLarge)
         Text("Pin 1 (square pad) is at the microSD end. Outer row = even pins, inner row = odd. Colour = live level (green high, grey low); label = kernel function.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-        if (snap.pins.isEmpty()) Text("pinctrl returned nothing — is raspi-utils installed on the Pi?", color = MaterialTheme.colorScheme.error)
+        if (snap.pins.isEmpty()) Text("pinctrl returned nothing: is raspi-utils installed on the Pi?", color = MaterialTheme.colorScheme.error)
         Spacer(Modifier.height(10.dp))
         Column(Modifier.background(Palette.pcb, RoundedCornerShape(10.dp)).padding(12.dp)) {
             Text("board edge ↑", color = Color.White, style = MaterialTheme.typography.labelSmall)
@@ -44,9 +44,9 @@ fun PinsPanel(snap: PiSnapshot?) {
         Row(Modifier.padding(vertical = 2.dp)) { listOf("GPIO" to 60, "pin" to 50, "function" to 110, "level" to 60, "pull" to 60, "kernel says" to 180, "bench use" to 200).forEach { (h, w) -> Text(h, Modifier.width(w.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) } }
         for (g in snap.pins.keys.sorted()) { val pi = snap.pins[g]!!; val phys = HEADER.entries.firstOrNull { it.value.second == g }?.key
             Row(Modifier.padding(vertical = 1.dp)) {
-                Text("GPIO$g", Modifier.width(60.dp)); Text(phys?.toString() ?: "—", Modifier.width(50.dp)); Text(fnName(pi.function), Modifier.width(110.dp))
+                Text("GPIO$g", Modifier.width(60.dp)); Text(phys?.toString() ?: "none", Modifier.width(50.dp)); Text(fnName(pi.function), Modifier.width(110.dp))
                 Text(pi.level, Modifier.width(60.dp), color = if (pi.level == "hi") Palette.good else MaterialTheme.colorScheme.onSurfaceVariant)
-                Text(pi.pull.ifBlank { "—" }, Modifier.width(60.dp)); Text(pi.alias, Modifier.width(180.dp), style = MaterialTheme.typography.bodySmall); Text(BENCH_USE[g] ?: "", Modifier.width(200.dp), style = MaterialTheme.typography.bodySmall)
+                Text(pi.pull.ifBlank { "none" }, Modifier.width(60.dp)); Text(pi.alias, Modifier.width(180.dp), style = MaterialTheme.typography.bodySmall); Text(BENCH_USE[g] ?: "", Modifier.width(200.dp), style = MaterialTheme.typography.bodySmall)
             } }
     }
 }

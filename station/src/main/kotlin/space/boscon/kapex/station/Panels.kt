@@ -15,11 +15,11 @@ import space.boscon.kapex.analysis.*
 fun OverviewPanel(snap: PiSnapshot?) {
     if (snap == null || !snap.reachable) { Unavailable(snap); return }
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("${snap.hostname} — ${snap.uptime}", style = MaterialTheme.typography.titleLarge)
+        Text("${snap.hostname}: ${snap.uptime}", style = MaterialTheme.typography.titleLarge)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             Card(Modifier.weight(1f)) { Column(Modifier.padding(12.dp)) { SectionTitle("Computer")
                 KV("kernel", snap.kernel); KV("load (1/5/15 min)", snap.load); KV("SoC temperature", snap.socTempC?.let { "${it.f()} °C" } ?: "unreadable")
-                KV("throttle flags", if (snap.throttled == "0x0") "0x0 (none)" else "${snap.throttled} — under-voltage/throttling has occurred"); KV("input voltage", snap.inputVolts?.let { "${it.f(2)} V at the PMIC" } ?: "unreadable")
+                KV("throttle flags", if (snap.throttled == "0x0") "0x0 (none)" else "${snap.throttled}: under-voltage/throttling has occurred"); KV("input voltage", snap.inputVolts?.let { "${it.f(2)} V at the PMIC" } ?: "unreadable")
                 KV("memory", if (snap.memUsedMb != null) "${snap.memUsedMb} / ${snap.memTotalMb} MB used" else "unreadable"); KV("disk / and /log", "${snap.diskRootUsedPct ?: "?"} % · ${snap.diskLogUsedPct ?: "?"} %")
                 KV("fan", snap.fan?.let { if (it.present) "${it.rpm ?: "?"} rpm, pwm ${it.pwm ?: "?"}/255" else "not detected" } ?: "unreadable")
                 KV("Wi-Fi", snap.wifi?.let { if (it.connected) "${it.ssid} ${it.signal}% · ${it.ip}" else "not connected" } ?: "unreadable") } }
@@ -39,11 +39,11 @@ fun RadioPanel(station: Station, snap: PiSnapshot?) {
     if (snap == null || !snap.reachable) { Unavailable(snap); return }
     val console by station.console.collectAsState()
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("Radio — SX1262 in the TX Heltec, driven from Kotlin on the Pi through the bridge", style = MaterialTheme.typography.titleLarge)
-        KV("bridge on /dev/ttyUSB0", if (snap.ttyUsb) "attached" else "NOT ATTACHED"); KV("radio (from flightd)", snap.radioLine.ifBlank { "—" })
+        Text("Radio: SX1262 in the TX Heltec, driven from Kotlin on the Pi through the bridge", style = MaterialTheme.typography.titleLarge)
+        KV("bridge on /dev/ttyUSB0", if (snap.ttyUsb) "attached" else "NOT ATTACHED"); KV("radio (from flightd)", snap.radioLine.ifBlank { "none" })
         val frames = snap.tlm; val fails = frames.count { !it.tx }
         KV("frames in current log", "${frames.size} · ${fails} TX failures"); KV("beacon cadence", cadence(frames))
-        KV("link", "GFSK 38.4 kb/s, 866.1 MHz, ±40 kHz, sync 2D D4, CRC-16 — identical to firmware/08 so 09_telemetry_rx receives it")
+        KV("link", "GFSK 38.4 kb/s, 866.1 MHz, ±40 kHz, sync 2D D4, CRC-16: identical to firmware/08 so 09_telemetry_rx receives it")
         SectionTitle("Bridge firmware (firmware/23_spi_bridge)")
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             var confirm by remember { mutableStateOf(false) }
@@ -69,7 +69,7 @@ fun DataPanel(snap: PiSnapshot?) {
     if (snap == null || !snap.reachable) { Unavailable(snap); return }
     val t = snap.tlm
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("Telemetry — the last ${t.size} frames in ${snap.logFile.ifBlank { "(no log)" }}", style = MaterialTheme.typography.titleLarge)
+        Text("Telemetry: the last ${t.size} frames in ${snap.logFile.ifBlank { "(no log)" }}", style = MaterialTheme.typography.titleLarge)
         Text("Each measure on its own axis. Hover for values. Source: /log/flight NDJSON written by flightd, O_SYNC.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             LineChart("Pressure", "hPa", t.map { it.t to it.pressPa / 100 }, 2, Modifier.weight(1f)); LineChart("Air temperature (BMP280)", "°C", t.map { it.t to it.tempC }, 2, Modifier.weight(1f)) }
@@ -86,7 +86,7 @@ fun PromptsPanel(station: Station, snap: PiSnapshot?) {
     var text by remember { mutableStateOf("") }
     var pending by remember { mutableStateOf<String?>(null) }
     Column(Modifier.fillMaxSize()) {
-        Text("Prompts — to the LLM agent in flightd (file queue; the radio uplink will feed the same queue)", style = MaterialTheme.typography.titleLarge)
+        Text("Prompts: to the LLM agent in flightd (file queue; the radio uplink will feed the same queue)", style = MaterialTheme.typography.titleLarge)
         Row(verticalAlignment = Alignment.CenterVertically) {
             OutlinedTextField(text, { text = it }, Modifier.weight(1f), label = { Text("Ask the payload") }, minLines = 2)
             Spacer(Modifier.width(8.dp))
@@ -99,7 +99,7 @@ fun PromptsPanel(station: Station, snap: PiSnapshot?) {
         val console by station.console.collectAsState()
         console.lastOrNull { it.contains("queue prompt") || it.startsWith("✓") || it.startsWith("✗") }?.let { Text(it, style = MaterialTheme.typography.bodySmall, color = if (it.startsWith("✗")) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant) }
         val svc = snap?.services?.firstOrNull { it.name == "hab1-flightd" }
-        if (svc != null && svc.active != "active") Text("flightd is ${svc.active} — prompts wait in the queue until it is active", color = MaterialTheme.colorScheme.error)
+        if (svc != null && svc.active != "active") Text("flightd is ${svc.active}: prompts wait in the queue until it is active", color = MaterialTheme.colorScheme.error)
         val answers = snap?.prompts ?: emptyList()
         if (pending != null && answers.none { it.kind == "answer" && it.name == pending }) Text("waiting for the answer to $pending … (the model runs on the Pi; a tool round trip takes ~6 s)", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         SectionTitle("History (from the flight log)")
@@ -138,16 +138,16 @@ fun AnalysisPanel(snap: PiSnapshot?) {
         }
     }
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("Analysis — kapex/analysis run on the Mac over the same frames", style = MaterialTheme.typography.titleLarge)
+        Text("Analysis: kapex/analysis run on the Mac over the same frames", style = MaterialTheme.typography.titleLarge)
         if (out == null) { Text("fewer than two frames in the log window"); return }
         val (readings, rolls, profile) = out
         SectionTitle("What read_sensors would hand the model right now"); Card(Modifier.fillMaxWidth()) { Text(readings.toPromptText(), Modifier.padding(12.dp)) }
         SectionTitle("Rolling statistics (last 60 frames)")
         Row { listOf("channel" to 170, "last" to 90, "mean" to 90, "σ" to 90, "min" to 90, "max" to 90).forEach { (h, w) -> Text(h, Modifier.width(w.dp), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) } }
-        for ((name, r) in listOf("pressure (Pa)" to rolls[0], "air temperature (°C)" to rolls[1], "SoC temperature (°C)" to rolls[2], "vertical rate (m/s, 10)" to rolls[3])) if (r.size > 0) Row { Text(name, Modifier.width(170.dp)); Text(r.last.f(2), Modifier.width(90.dp)); Text(r.mean.f(2), Modifier.width(90.dp)); Text(if (r.size > 1) r.stdDev.f(3) else "—", Modifier.width(90.dp)); Text(r.min().f(2), Modifier.width(90.dp)); Text(r.max().f(2), Modifier.width(90.dp)) }
+        for ((name, r) in listOf("pressure (Pa)" to rolls[0], "air temperature (°C)" to rolls[1], "SoC temperature (°C)" to rolls[2], "vertical rate (m/s, 10)" to rolls[3])) if (r.size > 0) Row { Text(name, Modifier.width(170.dp)); Text(r.last.f(2), Modifier.width(90.dp)); Text(r.mean.f(2), Modifier.width(90.dp)); Text(if (r.size > 1) r.stdDev.f(3) else "none", Modifier.width(90.dp)); Text(r.min().f(2), Modifier.width(90.dp)); Text(r.max().f(2), Modifier.width(90.dp)) }
         SectionTitle("Altitude profile (250 m bins) and Regener-Pfotzer detector")
         val bins = profile.bins(); Text("${bins.size} bin(s) populated on ascent: ${bins.keys.sorted().joinToString { "${profile.binAltitude(it).f(0)} m×${bins[it]!!.n}" }}", style = MaterialTheme.typography.bodySmall)
-        Text("Peak detector input is the Geiger count rate (sensor not yet on the bench); run here on pressure as a plumbing check: ${profile.findPeak()?.let { "peak at ${it.altitudeM.f(0)} m, ratio ${it.ratio.f(1)}" } ?: "no peak (needs ≥ 3 bins, ≥ 5 samples each, ≥ 3× ground) — expected on a static bench"}", style = MaterialTheme.typography.bodySmall)
+        Text("Peak detector input is the Geiger count rate (sensor not yet on the bench); run here on pressure as a plumbing check: ${profile.findPeak()?.let { "peak at ${it.altitudeM.f(0)} m, ratio ${it.ratio.f(1)}" } ?: "no peak (needs ≥ 3 bins, ≥ 5 samples each, ≥ 3× ground): expected on a static bench"}", style = MaterialTheme.typography.bodySmall)
     }
 }
 
@@ -157,7 +157,7 @@ fun FanPanel(station: Station, snap: PiSnapshot?) {
     val fan = snap.fan
     var manual by remember { mutableStateOf(120f) }
     Column(Modifier.verticalScroll(rememberScrollState())) {
-        Text("Fan — Pi 5 fan connector (pwm-fan)", style = MaterialTheme.typography.titleLarge)
+        Text("Fan: Pi 5 fan connector (pwm-fan)", style = MaterialTheme.typography.titleLarge)
         if (fan == null || !fan.present) { Text("No fan device. The firmware enables the connector only when it sees a fan at power-on; dtparam=cooling_fan=on forces it (set on 2026-10-11).", color = MaterialTheme.colorScheme.error); }
         else {
             KV("speed", "${fan.rpm ?: "?"} rpm"); KV("pwm", "${fan.pwm ?: "?"} / 255"); KV("control", when (fan.enable) { 2 -> "automatic (kernel curve)"; 1 -> "MANUAL override"; 0 -> "off"; else -> "?" }); KV("SoC temperature", snap.socTempC?.let { "${it.f()} °C" } ?: "?")

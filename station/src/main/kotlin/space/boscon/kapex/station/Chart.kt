@@ -15,7 +15,7 @@ import androidx.compose.ui.input.pointer.PointerEventType
 import androidx.compose.ui.unit.dp
 
 /**
- * One series, one axis (dataviz: never a dual axis — one chart per measure).
+ * One series, one axis (dataviz: never a dual axis: one chart per measure).
  * 2 px line, recessive grid, hover crosshair with a tooltip, text in text tokens.
  */
 @Composable

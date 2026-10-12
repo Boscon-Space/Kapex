@@ -37,7 +37,7 @@ fun CodePanel(station: Station) {
         Spacer(Modifier.width(12.dp))
         Column(Modifier.weight(1f).fillMaxHeight()) {
             Row(verticalAlignment = androidx.compose.ui.Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text(current?.name ?: "—", style = MaterialTheme.typography.titleMedium); if (dirty) Text("• unsaved", color = MaterialTheme.colorScheme.error)
+                Text(current?.name ?: "none", style = MaterialTheme.typography.titleMedium); if (dirty) Text("• unsaved", color = MaterialTheme.colorScheme.error)
                 Spacer(Modifier.weight(1f))
                 Button(enabled = dirty && current != null, onClick = { current!!.writeText(text); dirty = false; station.log("saved ${current!!.name}") }) { Text("Save") }
                 if (isIno) {
