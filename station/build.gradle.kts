@@ -24,10 +24,13 @@ kotlin { jvmToolchain(21) }
 compose.desktop {
     application {
         mainClass = "space.boscon.kapex.station.MainKt"
+        // Packaging (jpackage) must not use a Homebrew JDK; point STATION_JDK at
+        // e.g. an Amazon Corretto or Adoptium JDK home when running createDistributable.
+        providers.environmentVariable("STATION_JDK").orNull?.let { javaHome = it }
         nativeDistributions {
             targetFormats(TargetFormat.Dmg)
             packageName = "HAB-1 Station"
-            packageVersion = "0.1.0"
+            packageVersion = "1.0.0"   // macOS jpackage rejects a leading zero
         }
     }
 }

@@ -2,6 +2,21 @@
 
 Newest session first. One entry per session; bullets are what actually happened.
 
+## 2026-10-12 (evening): Station installed as a Mac app
+
+- Aditya: install the station so it need not be run from Gradle. Packaged
+  with Compose's `createDistributable` (jpackage, bundles its own runtime):
+  170 MB `HAB-1 Station.app` in `/Applications`, launched and polling the Pi.
+  Two packaging facts: Compose refuses to package with a Homebrew JDK, so
+  `STATION_JDK` points at the Corretto 22 on this Mac (`station/build.gradle.kts`
+  reads it); macOS rejects an app version with a leading zero, so the app is
+  `1.0.0`. `tools/install_station.sh` repeats the whole thing.
+- The app finds the repo through `~/.hab1-station.properties` (`repo=`),
+  written now; without it an app launched from /Applications would not find
+  the tools.
+- Removed the 18 em dashes from the station's UI strings (rule in CLAUDE.md).
+- Not done: a login item (start at login) awaits Aditya's yes.
+
 ## 2026-10-12 — JetBrains pitch page and email
 
 - Aditya's facts for the pitch (his statements, not measured by us): first
