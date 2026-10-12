@@ -38,7 +38,7 @@ systemd ──┬── flightd (Kotlin/Native, one process, coroutines)
           └── watchdog: systemd WatchdogSec=30 on the Pi hardware watchdog; flightd pets it
 ```
 
-Repository layout (`payload/`, Gradle Kotlin Multiplatform):
+Repository layout (`kapex/`, Gradle Kotlin Multiplatform):
 `hal/` (linuxArm64 + macosArm64 for host tests), `probes/` (one executable
 per bench probe), later `drivers/`, `protocol/`, `analysis/`, `llm/`,
 `agent/`, `analysis/`, `flightd/`, `station/` (HAB-1 Station: the Mac console, Compose Desktop, reads the Pi over SSH).

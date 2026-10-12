@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copy llama.cpp headers + shared libraries from the Pi's build into payload/llm/native
+# Copy llama.cpp headers + shared libraries from the Pi's build into kapex/llm/native
 # so the Mac can cinterop and link against them for linuxArm64.
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")/.." && pwd)

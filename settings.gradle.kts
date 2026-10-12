@@ -1,4 +1,4 @@
-rootProject.name = "hab1-payload"
+rootProject.name = "kapex"
 
 pluginManagement {
     repositories { gradlePluginPortal(); mavenCentral(); google() }

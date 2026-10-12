@@ -1,9 +1,9 @@
 #!/bin/bash
-# Write the Raspberry Pi OS image in payload/image/ to the microSD card and
+# Write the Raspberry Pi OS image in kapex/image/ to the microSD card and
 # drop custom.toml onto its boot partition.
 #
-#   payload/tools/image_card.sh            # lists candidate disks, asks
-#   payload/tools/image_card.sh /dev/disk4 # writes to that disk, after confirm
+#   kapex/tools/image_card.sh            # lists candidate disks, asks
+#   kapex/tools/image_card.sh /dev/disk4 # writes to that disk, after confirm
 #
 # Refuses anything that is not an external, physical, removable disk under
 # 64 GB. Still: read the diskutil output it prints before typing YES.

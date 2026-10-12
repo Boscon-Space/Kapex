@@ -2,6 +2,20 @@
 
 Newest first. Each entry: date, decision, why, what it rules out.
 
+## 2026-10-12
+
+- **The project is named Kapex** (Kotlin + apex), chosen by Aditya from a shortlist
+  of space words with a K. Folder `payload/` is now `kapex/`; Gradle root project
+  `hab1-payload` is now `kapex`; Kotlin packages `space.boscon.hab.*` are now
+  `space.boscon.kapex.*`. Why: a name the Kotlin community can search for and adopt,
+  instead of an internal folder name. Unchanged on purpose: the Pi hostname
+  `hab1.local`, the ssh key `hab1_pi`, the station settings file
+  `~/.hab1-station.properties`, the `flightd` binary and unit names, and the website
+  route `/payload-box`, because those name the running hardware or the physical
+  box, not the software. Checked: no Kotlin repository named Kapex on GitHub in a
+  name search on 2026-10-12; Maven Central, other registries, domains and trademarks
+  were NOT checked.
+
 ## 2026-10-11
 
 - **GPS will connect to the Pi 5 directly** (UART on header pins 8/10,

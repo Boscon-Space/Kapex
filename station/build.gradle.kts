@@ -23,7 +23,7 @@ kotlin { jvmToolchain(21) }
 
 compose.desktop {
     application {
-        mainClass = "space.boscon.hab.station.MainKt"
+        mainClass = "space.boscon.kapex.station.MainKt"
         nativeDistributions {
             targetFormats(TargetFormat.Dmg)
             packageName = "HAB-1 Station"

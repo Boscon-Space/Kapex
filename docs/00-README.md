@@ -1,4 +1,8 @@
-# HAB-1 payload computer — session record
+# Kapex (the HAB-1 payload computer) — session record
+
+The project and this folder were called `payload` until 2026-10-12. Older
+entries in `04-worklog.md` use the old name and the old `space.boscon.hab`
+package; they are left as written.
 
 **Read this folder first in every session, and update it before the session
 ends.** Context is flushed at ~1M tokens; this folder is the memory.

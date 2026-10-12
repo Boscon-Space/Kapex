@@ -1,6 +1,10 @@
-# HAB-1 payload software (Kotlin/Native, Raspberry Pi 5)
+# Kapex: Kotlin from the pins to the edge of space
 
-One static Kotlin/Native binary runs the payload. See
+Kapex (Kotlin + apex) is the software of the HAB-1 payload computer: one static
+Kotlin/Native binary for the Raspberry Pi 5 that owns the pins, the radio, the
+sensors and the language model, plus the Compose console on the Mac. Kotlin
+packages are `space.boscon.kapex.*`; the Gradle root project is `kapex`.
+The folder was `payload/` until 2026-10-12. See
 `../docs/35-pi5-kotlin-payload-computer.md` §8 for the plan and §9 for the
 bench bring-up log.
 
@@ -15,7 +19,7 @@ bench bring-up log.
 | `tools/run_probe.sh` | Build a probe, copy it to the Pi, run it. |
 | `tools/pi_service.sh` | Install/control the continuous telemetry beacon service on the Pi. |
 | `systemd/` | Unit files deployed to the Pi. |
-| `station/` | HAB-1 Station: Compose for Desktop console for the Mac — `gradle :station:run`. |
+| `station/` | HAB-1 Station: Compose for Desktop console for the Mac, run with `gradle :station:run`. |
 | `tools/flash_bridge.sh` | Build the Heltec bridge sketch on the Mac and have the Pi flash it over USB, with rollback to the last good image. |
 | `image/` | Downloaded image + per-machine `user-data`/`network-config` (git-ignored). |
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 # One-time setup on the Pi after first boot of the Trixie Lite image.
 # Run from the Mac:
-#   scp -i ~/.ssh/hab1_pi payload/tools/pi_firstboot_setup.sh hab@hab1.local:
+#   scp -i ~/.ssh/hab1_pi kapex/tools/pi_firstboot_setup.sh hab@hab1.local:
 #   ssh -i ~/.ssh/hab1_pi hab@hab1.local sudo bash pi_firstboot_setup.sh
 #
 # What it does, in order, each step idempotent:

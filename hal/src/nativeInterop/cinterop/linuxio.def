@@ -2,7 +2,7 @@
 # toolchain sysroot; the GPIO character-device v2 ABI (kernel >= 5.10) is
 # declared here verbatim from include/uapi/linux/gpio.h because the sysroot's
 # headers predate it. Layouts must match the kernel exactly: they are the ABI.
-package = space.boscon.hab.hal.linuxio
+package = space.boscon.kapex.hal.linuxio
 headers = linux/i2c-dev.h linux/i2c.h linux/spi/spidev.h sys/ioctl.h
 compilerOpts = -D_GNU_SOURCE
 

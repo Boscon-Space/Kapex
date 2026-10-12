@@ -1,6 +1,6 @@
 #!/bin/bash
 # Put the first-boot files on an already-imaged card's boot partition.
-#   payload/tools/boot_config.sh            # uses /Volumes/bootfs
+#   kapex/tools/boot_config.sh            # uses /Volumes/bootfs
 set -euo pipefail
 HERE=$(cd "$(dirname "$0")/.." && pwd)
 BOOT=${1:-/Volumes/bootfs}

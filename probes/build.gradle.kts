@@ -5,14 +5,14 @@ plugins { kotlin("multiplatform") }
 kotlin {
     linuxArm64 {
         binaries {
-            executable("gpio_probe") { entryPoint = "space.boscon.hab.probes.gpioProbe" }
-            executable("edge_probe") { entryPoint = "space.boscon.hab.probes.edgeProbe" }
-            executable("baro_probe") { entryPoint = "space.boscon.hab.probes.baroProbe" }
-            executable("spi_probe") { entryPoint = "space.boscon.hab.probes.spiProbe" }
-            executable("radio_probe") { entryPoint = "space.boscon.hab.probes.radioProbe" }
-            executable("telemetry_tx") { entryPoint = "space.boscon.hab.probes.telemetryTx" }
-            executable("llm_probe") { entryPoint = "space.boscon.hab.probes.llmProbe" }
-            executable("agent_probe") { entryPoint = "space.boscon.hab.probes.agentProbe" }
+            executable("gpio_probe") { entryPoint = "space.boscon.kapex.probes.gpioProbe" }
+            executable("edge_probe") { entryPoint = "space.boscon.kapex.probes.edgeProbe" }
+            executable("baro_probe") { entryPoint = "space.boscon.kapex.probes.baroProbe" }
+            executable("spi_probe") { entryPoint = "space.boscon.kapex.probes.spiProbe" }
+            executable("radio_probe") { entryPoint = "space.boscon.kapex.probes.radioProbe" }
+            executable("telemetry_tx") { entryPoint = "space.boscon.kapex.probes.telemetryTx" }
+            executable("llm_probe") { entryPoint = "space.boscon.kapex.probes.llmProbe" }
+            executable("agent_probe") { entryPoint = "space.boscon.kapex.probes.agentProbe" }
         }
     }
     sourceSets {

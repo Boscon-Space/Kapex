@@ -6,7 +6,7 @@ plugins { kotlin("multiplatform") }
 // by their probes; this module only composes them.
 kotlin {
     linuxArm64 {
-        binaries { executable("flightd") { entryPoint = "space.boscon.hab.flightd.main" } }
+        binaries { executable("flightd") { entryPoint = "space.boscon.kapex.flightd.main" } }
     }
     sourceSets {
         linuxArm64Main.dependencies {

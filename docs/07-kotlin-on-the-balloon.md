@@ -3,7 +3,8 @@
 **HAB-1: a Raspberry Pi 5 running a local LLM under a hydrogen balloon, with
 the whole payload computer written in Kotlin.**
 
-Maintained document. Last updated 2026-10-11. Every number here was measured
+The project is called **Kapex**: Kotlin plus apex, the top of the flight. Maintained
+document. Last updated 2026-10-12. Every number here was measured
 on our bench unless it says *assumed*. Changes are logged at the end.
 
 ---
@@ -20,8 +21,8 @@ The mission is tracking-and-recovery; the LLM is the passenger
 The software decision, made with JetBrains as a collaborator: **the payload
 computer runs Kotlin, all the way down to the pins.** Not Kotlin as a shell
 around Python and C, but one Kotlin/Native binary that owns the GPIO, the SPI
-radio, the sensors, the data analysis, the LLM session and the flight log —
-and a Kotlin desktop console on the Mac that watches it. Two things are
+radio, the sensors, the data analysis, the LLM session and the flight log,
+plus a Kotlin desktop console on the Mac that watches it. Two things are
 deliberately not Kotlin: the independent recovery beacon's microcontroller
 (C++ on a Heltec ESP32, because it must not share a software stack with the
 LLM box, and because Kotlin/Native has no ESP32 target) and the matrix-maths
@@ -33,15 +34,15 @@ rewrite.
 | Layer | Existed | We built (Kotlin unless noted) |
 |---|---|---|
 | Board | Raspberry Pi 5, 4 GB, Raspberry Pi OS Trixie (kernel 6.18) | first-boot config (cloud-init), partition/journal/fan setup scripts |
-| Pin access | Linux kernel character devices: `/dev/gpiochip0` (GPIO v2 uAPI), `/dev/i2c-1`, `/dev/spidev0.0`, termios | **`hal/`** — direct `ioctl` bindings, no libgpiod, no Pi4J, no JVM. GPIO in/out/edge events, I²C transactions, SPI transfers, serial. The GPIO v2 structs are declared by us with compile-time size asserts because the toolchain's sysroot headers predate them |
-| Radio | Semtech SX1262 inside a Heltec V3; RadioLib (C++) on the ESP32 | **`drivers/Sx1262`** — the GFSK configuration RadioLib 7.7.1 produces, reproduced register-for-register so our frames are received by the unchanged C++ receiver. **`BridgeBus`** — the Heltec as a dumb SPI/GPIO adapter over USB serial (`firmware/23_spi_bridge`, C++, ~250 lines, no radio logic) |
+| Pin access | Linux kernel character devices: `/dev/gpiochip0` (GPIO v2 uAPI), `/dev/i2c-1`, `/dev/spidev0.0`, termios | **`hal/`**: direct `ioctl` bindings, no libgpiod, no Pi4J, no JVM. GPIO in/out/edge events, I²C transactions, SPI transfers, serial. The GPIO v2 structs are declared by us with compile-time size asserts because the toolchain's sysroot headers predate them |
+| Radio | Semtech SX1262 inside a Heltec V3; RadioLib (C++) on the ESP32 | **`drivers/Sx1262`**: the GFSK configuration RadioLib 7.7.1 produces, reproduced register-for-register so our frames are received by the unchanged C++ receiver. **`BridgeBus`**: the Heltec as a dumb SPI/GPIO adapter over USB serial (`firmware/23_spi_bridge`, C++, ~250 lines, no radio logic) |
 | Sensors | BMP280 on I²C (bench), more to come | **`drivers/Bmp280`** with the datasheet's integer compensation, unit-tested against Bosch's reference numbers; **`NmeaParser`** |
-| Wire format | a 28-byte packed C struct in the firmware | **`protocol/TelemetryFrame`** — byte-identical, cross-checked against the C source by a script in CI-style (`tools/check_packet_abi.py`) |
-| LLM | llama.cpp (C/C++), Qwen2.5-1.5B-Instruct Q4_K_M | **`llm/`** — cinterop binding; `Llm` wraps load (mlocked), ChatML prompt, greedy sampling, 128-token and 90-second guards |
-| Agent | — | **`agent/`** — tool calling with a one-line `CALL <tool>` grammar a 1.5 B model follows; guards (busy, chip temperature, pack voltage) that refuse *before* the model is touched |
-| Analysis | — | **`analysis/`** — rolling statistics, altitude-binned profiles, a Regener-Pfotzer peak detector for the radiation curve, burst and free-fall detection, stuck/rate/stale channel flags, honest prompt text ("unavailable", never invented) |
-| Process | systemd | **`flightd/`** — the one process: 1 Hz tick → sensors → analysis → frame → beacon → synced NDJSON log → watchdog pet; agent on its own thread; sd_notify over a raw Unix socket |
-| Ground side | — | **`station/`** — Compose for Desktop console on the Mac: pins, radio, charts, prompts, analysis, fan, code editor with build/flash/deploy, Wi-Fi, hardware watchdog. Reuses `protocol` and `analysis` as libraries |
+| Wire format | a 28-byte packed C struct in the firmware | **`protocol/TelemetryFrame`**: byte-identical, cross-checked against the C source by a script in CI-style (`tools/check_packet_abi.py`) |
+| LLM | llama.cpp (C/C++), Qwen2.5-1.5B-Instruct Q4_K_M | **`llm/`**: cinterop binding; `Llm` wraps load (mlocked), ChatML prompt, greedy sampling, 128-token and 90-second guards |
+| Agent | none | **`agent/`**: tool calling with a one-line `CALL <tool>` grammar a 1.5 B model follows; guards (busy, chip temperature, pack voltage) that refuse *before* the model is touched |
+| Analysis | none | **`analysis/`**: rolling statistics, altitude-binned profiles, a Regener-Pfotzer peak detector for the radiation curve, burst and free-fall detection, stuck/rate/stale channel flags, honest prompt text ("unavailable", never invented) |
+| Process | systemd | **`flightd/`**: the one process: 1 Hz tick → sensors → analysis → frame → beacon → synced NDJSON log → watchdog pet; agent on its own thread; sd_notify over a raw Unix socket |
+| Ground side | none | **`station/`**: Compose for Desktop console on the Mac: pins, radio, charts, prompts, analysis, fan, code editor with build/flash/deploy, Wi-Fi, hardware watchdog. Reuses `protocol` and `analysis` as libraries |
 | Ops | esptool, arduino-cli, Gradle | scripts to image the card, flash the Heltec *from the Pi* with rollback, deploy flightd, run every probe |
 
 Code size on 2026-10-11, measured with `wc -l`: 2,814 lines of Kotlin across
@@ -52,8 +53,8 @@ of shell tooling.
 
 **One Gradle Kotlin Multiplatform build, pinned to Kotlin 2.4.10.**
 `linuxArm64` is a Tier 2 target (compiled on CI, not run-tested) so we freeze
-the compiler for the 30-day test campaign. The Mac is the build host —
-Kotlin/Native cannot build on an aarch64 Linux host — and a 650 KB to 2 MB
+the compiler for the 30-day test campaign. The Mac is the build host, because
+Kotlin/Native cannot build on an aarch64 Linux host. A 650 KB to 2 MB
 ELF is copied to the Pi over SSH.
 
 **Logic in common Kotlin, I/O in thin native modules.** `protocol`,
@@ -90,7 +91,7 @@ on the main loop, so a 6-second model answer never delays a frame. Measured:
   implementation to drift.
 - **Tests that run before hardware exists.** The BMP280 compensation, the
   NMEA parser, the frame layout, the radio register maths (bit-rate 26666,
-  deviation 41943, frequency 908,171,648 — the float32 values RadioLib
+  deviation 41943, frequency 908,171,648, the float32 values RadioLib
   produces), the agent's guard logic and the Pfotzer detector all pass on the
   Mac. Hardware probes then check the last mile, and each probe has a
   failing case we saw before the passing one.
@@ -145,14 +146,14 @@ answers land in `/log/answers/`. The radio uplink will feed the same queue.
 ## 7. How Kotlin developers can use this
 
 **Reuse as libraries.** `hal/` is a generic Kotlin/Native HAL for any Linux
-board with the GPIO character device, `i2c-dev` and `spidev` — any Pi, and
+board with the GPIO character device, `i2c-dev` and `spidev`, so it runs on any Pi and
 most SBCs. `drivers/Sx1262` works with any SX126x module. `analysis/` and
 `agent/` are plain Kotlin and run on JVM, Native or desktop.
 
 **Build it.**
 ```bash
 # prerequisites on the Mac: JDK 17+, Gradle 9, Kotlin/Native toolchain (downloads on first build)
-cd payload
+cd kapex
 gradle :protocol:macosArm64Test :drivers:macosArm64Test :agent:macosArm64Test :analysis:macosArm64Test   # pure-Kotlin tests
 gradle :probes:linkGpio_probeReleaseExecutableLinuxArm64   # one probe for the Pi
 gradle :flightd:linkFlightdReleaseExecutableLinuxArm64     # the flight binary
@@ -186,5 +187,8 @@ sit inside `remember { }`; linker options go in the cinterop `.def`;
 ---
 
 ### Changelog of this document
-- 2026-10-11 — first version, after the first bench day: M0–M3, M5, M6, M7a,
+- 2026-10-11: first version, after the first bench day: M0–M3, M5, M6, M7a,
   M8, M9, M11, M16 passed; M12 soaking.
+- 2026-10-12: the project is named Kapex. The folder `payload/` became `kapex/`, the
+  Gradle root project is `kapex`, and the Kotlin packages moved from
+  `space.boscon.hab` to `space.boscon.kapex`. No behaviour changed.

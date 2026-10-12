@@ -6,6 +6,6 @@ plugins {
 }
 
 allprojects {
-    group = "space.boscon.hab"
+    group = "space.boscon.kapex"
     version = "0.1.0"
 }

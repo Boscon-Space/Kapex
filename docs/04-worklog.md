@@ -22,6 +22,25 @@ Newest session first. One entry per session; bullets are what actually happened.
 - Email draft given in chat; placeholders: predictor URL (not found anywhere
   in the repos; `boscon-hab-predictor/` is the source, deployed URL unknown)
   and recipient name. Open: is `developerchunk/BosconSpace` public?
+- Website follow-ups the same day: the Kotlin write-up became its own page `/kotlin`
+  (generated from `07-kotlin-on-the-balloon.md` by `website/tools/build_kotlin_page.py`),
+  `/payload-box` and `/jetbrains` became directories with `index.html`, new
+  photography, the predictor linked (https://boscon-hab-predictor.vercel.app/).
+  Pushed and live at `ebe27de`; all three URLs returned 200 on space.ketoy.dev.
+  `developerchunk/BosconSpace` is still PRIVATE, so no repository link is on the site.
+- **Renamed the project to Kapex** (Aditya's choice; see 02-decisions 2026-10-12):
+  folder `payload/` to `kapex/`, Gradle root `kapex`, packages `space.boscon.hab.*` to
+  `space.boscon.kapex.*` (14 source directories moved, 58 files edited), station code
+  that located `payload/tools`, the llama cinterop paths, `tools/check_packet_abi.py`,
+  CLAUDE.md. Verified on the Mac: 28 unit tests, 0 failures, from the new folder; the
+  Linux flight binary, the gpio probe and the station compile and link; `flightd.kexe`
+  is 1,969,120 bytes with 281 symbols naming kapex and none naming the old package;
+  `check_packet_abi.py` agrees on 11 fields, 28 bytes. A deliberately wrong entry point
+  (`space.boscon.hab.flightd.main`) failed the build with "Could not find
+  'space/boscon/hab/flightd/main' function", then was restored. **Not verified:** the
+  renamed binary was not deployed to or run on the Pi, and the station was compiled but
+  not launched. Staged in git as 83 renames, not committed. Old worklog entries keep the
+  old names on purpose.
 
 ## 2026-10-11 — plan, docs, Pi bring-up, first Kotlin code
 
