@@ -3,6 +3,9 @@
 Last updated: 2026-10-11
 
 ## Waiting on Aditya
+- Say "push" to deploy `/jetbrains` + `/payload-box` on space.ketoy.dev (website repo at `e4cfcff`).
+- Predictor's deployed URL for the page and the email.
+- Confirm the BosconSpace GitHub repo is public before the email goes out.
 - Jumpers 19–21 and 11–13 are on; BMP280 still to wire for M3/M4.
 - Power the Pi from the official 5 A supply; the Mac port browned it out
   with the Heltec attached.

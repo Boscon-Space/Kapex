@@ -2,6 +2,27 @@
 
 Newest session first. One entry per session; bullets are what actually happened.
 
+## 2026-10-12 — JetBrains pitch page and email
+
+- Aditya's facts for the pitch (his statements, not measured by us): first
+  launch **24 October 2026**, reserve **31 October**; clearances from the
+  Government of India, the Ministry of Civil Aviation and the Indian Air
+  Force are in hand; November/December flights add inter-communication
+  modules and multiple ground stations. Tone: company vision, not a project.
+- Built `/jetbrains` inside the live site's repo (`website/`, separate git
+  repo `developerchunk/BosconSpace-web`, Vercel, cleanUrls): same nav, hero,
+  thesis, story, ledger, timeline, contact and motion as the home page; a
+  facts grid of the 11 Oct bench numbers; two asks (Kotlin/Native contact,
+  tell the story together); links to the repo, the Kotlin write-up and the
+  3D payload box hosted at `/payload-box`. Verified in the browser at desktop
+  and phone widths. Committed as `e4cfcff` in the website repo, **not
+  pushed** (push = production deploy; waiting for Aditya's "push").
+- Earlier standalone page kept at `jetbrains-page/` in this repo (GitHub
+  Pages variant) in case it is wanted; superseded by the site route.
+- Email draft given in chat; placeholders: predictor URL (not found anywhere
+  in the repos; `boscon-hab-predictor/` is the source, deployed URL unknown)
+  and recipient name. Open: is `developerchunk/BosconSpace` public?
+
 ## 2026-10-11 — plan, docs, Pi bring-up, first Kotlin code
 
 **Research and plan**
