@@ -386,3 +386,9 @@ orders listed in `06-open-questions.md`.
 **Housekeeping**
 - Memory note `kotlin-everywhere-jetbrains` kept current.
 - This `payload/docs/` folder created as the durable session record.
+- 2026-10-13: removed every AI co-author line (`Co-Authored-By: Claude ...`) from the commit
+  messages of this repository, the parent and the website. 20 of 23 Kapex commits had one.
+  History was rewritten with git-filter-repo, so every Kapex commit hash changed (head
+  `9f51ebb` became `1fcfb81`). Checked per commit: file contents, authors, dates and subjects
+  are identical, only the message bodies differ. Old hashes quoted in older notes are stale.
+  Rule and a local `commit-msg` hook now stop new ones; see CLAUDE.md in the parent repo.
