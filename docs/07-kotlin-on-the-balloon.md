@@ -152,8 +152,9 @@ most SBCs. `drivers/Sx1262` works with any SX126x module. `analysis/` and
 
 **Build it.**
 ```bash
-# prerequisites on the Mac: JDK 17+, Gradle 9, Kotlin/Native toolchain (downloads on first build)
-cd kapex
+# prerequisites on the Mac: JDK 21 (the build pins its toolchain to 21), Gradle 9, Kotlin/Native toolchain (downloads on first build)
+git clone https://github.com/developerchunk/Kapex.git
+cd Kapex
 gradle :protocol:macosArm64Test :drivers:macosArm64Test :agent:macosArm64Test :analysis:macosArm64Test   # pure-Kotlin tests
 gradle :probes:linkGpio_probeReleaseExecutableLinuxArm64   # one probe for the Pi
 gradle :flightd:linkFlightdReleaseExecutableLinuxArm64     # the flight binary
@@ -192,3 +193,5 @@ sit inside `remember { }`; linker options go in the cinterop `.def`;
 - 2026-10-12: the project is named Kapex. The folder `payload/` became `kapex/`, the
   Gradle root project is `kapex`, and the Kotlin packages moved from
   `space.boscon.hab` to `space.boscon.kapex`. No behaviour changed.
+- 2026-10-13: build steps start from `git clone` of the public repository; JDK prerequisite
+  corrected to 21; code counts for the page recounted (2,814 lines of Kotlin, 349 lines of shell).
