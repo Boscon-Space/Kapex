@@ -79,8 +79,12 @@ Newest session first. One entry per session; bullets are what actually happened.
   when touched. Checker: `website/tools/check_no_em_dash.py`.
 - Known rough edges for a public repo: `README.md` and `docs/00-README.md` link to
   parent-repo paths (`../docs/35-...`, `../../CLAUDE.md`) that do not exist in the
-  standalone repo; `llm/.../llama.def` has an absolute path under `/Users/adityashinde`;
-  there is no LICENSE file yet.
+  standalone repo; `llm/.../llama.def` has an absolute path under `/Users/adityashinde`.
+- 2026-10-13: Apache License 2.0 added as `LICENSE` (Aditya's choice), text taken from
+  apache.org (11,323 bytes) and identical to GitHub's copy apart from blank lines at the ends; README has a License
+  section. No copyright holder line or NOTICE file was added, because who holds the
+  copyright (Aditya or Boscon Space) has not been decided. Open: that decision, and
+  whether to add the optional per-file header.
 
 ## 2026-10-11 — plan, docs, Pi bring-up, first Kotlin code
 

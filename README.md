@@ -30,3 +30,7 @@ Kotlin is pinned to 2.4.10 for the test campaign (`gradle.properties`).
 gradle :probes:linkGpio_probeReleaseExecutableLinuxArm64   # one probe
 tools/run_probe.sh gpio_probe                      # build + run on the Pi
 ```
+
+## License
+
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE). The license covers the code and documents in this repository. It does not cover the language model weights, the Raspberry Pi OS image or llama.cpp, which are downloaded or built separately under their own terms.
