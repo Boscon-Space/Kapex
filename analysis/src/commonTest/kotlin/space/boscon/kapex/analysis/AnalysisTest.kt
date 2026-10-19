@@ -60,5 +60,10 @@ class AnalysisTest {
         assertEquals("pressure 937.7 hPa; uv index unavailable; spin 0.42 rev/s [STUCK]", txt)
     }
 
-    @Test fun baroAltitude() { assertEquals(648.86, baroAltitudeM(93771.0), 0.5); assertEquals(0.0, baroAltitudeM(101325.0), 0.01) }
+    @Test fun baroAltitude() { assertEquals(648.76, baroAltitudeM(93771.0), 0.5); assertEquals(0.0, baroAltitudeM(101325.0), 0.01) }
+
+    // US Standard Atmosphere 1976 table, geometric altitude: 20 km = 5529.3 Pa, 30 km = 1197.0 Pa.
+    @Test fun baroAltitudeAt20km() = assertEquals(20000.0, baroAltitudeM(5529.3), 2.0)
+
+    @Test fun baroAltitudeAt30km() = assertEquals(30000.0, baroAltitudeM(1197.0), 2.0)
 }

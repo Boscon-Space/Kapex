@@ -33,9 +33,15 @@ class TelemetryFrameTest {
         assertNull(TelemetryFrame.decode(f.encode().copyOf(27)))
     }
 
-    @Test fun baroAltitudeMatchesAdafruitFormula() {
-        // 1013.25 hPa -> 0 m; 937.71 hPa -> 648.86 m: 44330*(1-(937.71/1013.25)^0.1903), computed by hand
+    @Test fun baroAltitudeLowAltitude() {
+        // 1013.25 hPa -> 0 m; 937.71 hPa -> 648.76 m geometric (US Std Atm 1976, computed in Python)
         assertEquals(0.0f, TelemetryFrame.baroAltitudeM(101325.0f), 0.01f)
-        assertEquals(648.86f, TelemetryFrame.baroAltitudeM(93771.0f), 0.5f)
+        assertEquals(648.76f, TelemetryFrame.baroAltitudeM(93771.0f), 0.5f)
     }
+
+    // US Standard Atmosphere 1976 table, geometric altitude: 20 km = 5529.3 Pa, 30 km = 1197.0 Pa.
+    // The single-layer formula reads 18 842 m and 25 281 m here.
+    @Test fun baroAltitudeAt20km() = assertEquals(20000.0f, TelemetryFrame.baroAltitudeM(5529.3f), 2.0f)
+
+    @Test fun baroAltitudeAt30km() = assertEquals(30000.0f, TelemetryFrame.baroAltitudeM(1197.0f), 2.0f)
 }

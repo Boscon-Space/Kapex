@@ -63,6 +63,14 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   reference example (calibration T1=27504 … P9=6000, adcT=519888,
   adcP=415148 → 25.08 °C, 100653 Pa) in `Bmp280Test`. The flight barometer is
   the MS5611; this driver is for the borrowed bench sensor.
+- Barometric altitude (2026-10-19): the single-layer `44330 × (1 − (P/P0)^0.1903)`
+  read 1 158 m low at 20 km and 4 719 m low at 30 km (computed against US Std Atm
+  1976, geometric). Replaced in protocol, analysis and both TX sketches by the
+  three-layer standard atmosphere; 20 km and 30 km tests failed before, pass after
+  (worst +0.18 m at 30 km). Verified on the Mac only, not against a real pressure.
+  Sensor range limits this: the bench BMP280 is rated to 300 hPa = 9 177 m and
+  the MS5611 to 10 mbar = 31 207 m (ranges recalled, not checked against the
+  datasheets; altitudes computed with the new model).
 
 ## Numbers from research (not measured by us)
 

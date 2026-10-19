@@ -1,5 +1,6 @@
 package space.boscon.kapex.protocol
 
+import kotlin.math.ln
 import kotlin.math.pow
 
 /**
@@ -37,10 +38,20 @@ data class TelemetryFrame(
             "uint8_t flags", "uint16_t vbatMv",
         )
 
-        /** Adafruit_BMP280::readAltitude(1013.25): barometric altitude in m from Pa. */
+        /**
+         * Geometric altitude in m from Pa: US Standard Atmosphere 1976, three layers
+         * (0-11 km lapse -6.5 K/km, 11-20 km isothermal, 20-32 km lapse +1.0 K/km),
+         * converted from geopotential with the standard's Earth radius, 6356766 m.
+         * Same arithmetic as baroAltitudeM() in the transmitter sketches. Above 32 km
+         * the third layer is extrapolated: -35 m at 35 km, -136 m at 38 km (computed).
+         */
         fun baroAltitudeM(pressPa: Float): Float {
-            val hPa = pressPa / 100.0f
-            return 44330.0f * (1.0f - (hPa / 1013.25f).pow(0.1903f))
+            val h = when {
+                pressPa >= 22632.06f -> 44330.77f * (1.0f - (pressPa / 101325.0f).pow(0.1902632f))
+                pressPa >= 5474.89f -> 11000.0f + 6341.618f * ln(22632.06f / pressPa)
+                else -> 20000.0f + 216650.0f * ((pressPa / 5474.89f).pow(-0.02927126f) - 1.0f)
+            }
+            return 6356766.0f * h / (6356766.0f - h)
         }
 
         fun decode(b: ByteArray): TelemetryFrame? {

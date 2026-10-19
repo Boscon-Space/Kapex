@@ -2,6 +2,22 @@
 
 Newest session first. One entry per session; bullets are what actually happened.
 
+## 2026-10-19: Sun Devil Rocketry review; baro altitude fixed above 11 km
+
+- Read 18 of Sun Devil Rocketry's (ASU) avionics repos for practices to adopt.
+  Report: `../../docs/36-sun-devil-rocketry-review.md`.
+- Their two-layer ISA function jumps 3 887 m at 11 km. Checking ours for the
+  same class of error found that `baroAltitudeM` (protocol and analysis) and
+  the transmitter sketches were single-layer: 4 719 m low at 30 km geometric
+  (computed against US Std Atm 1976).
+- Tests at 20 km (5529.3 Pa) and 30 km (1197.0 Pa) added first and seen to
+  FAIL: 8 failures (4 per target, JVM and macOS native).
+- Replaced with the three-layer standard atmosphere returning geometric
+  altitude. Kotlin 34/34 pass; `station`, `flightd`, `probes` compile.
+  `analysis.baroAltitudeM` lost its unused `seaLevelHpa` parameter.
+- Not deployed: the Pi still runs the old `flightd`. `linuxArm64` tests not run
+  (cannot run on the Mac).
+
 ## 2026-10-12 (evening): Station installed as a Mac app
 
 - Aditya: install the station so it need not be run from Gradle. Packaged
