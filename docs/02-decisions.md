@@ -46,13 +46,27 @@ Newest first. Each entry: date, decision, why, what it rules out.
 - **llama.cpp is the linked-in maths kernel.** Accepted by Aditya. Pure-Kotlin
   inference is a stretch goal after the flight stack works.
 - **One Kotlin/Native binary, custom zero-dependency HAL, no Koog, no JVM.**
-  Why: Aditya's direction — full end-to-end Kotlin, very lightweight, build
+  Why: Aditya's direction, full end-to-end Kotlin, very lightweight, build
   custom where nothing fits. Overrides the first-draft JVM recommendation.
   JVM is the fallback only if Native fails a go/no-go. Beacon stays C++.
 - **Kotlin pinned to 2.4.10 for the 30-day campaign.** Why: linuxArm64 is a
   Tier 2 target; a compiler update mid-campaign could break the build.
 - **Board is a Pi 5 with 4 GB, microSD, no NVMe** (docs corrected from 8 GB
   / NVMe).
+
+- **Footage goes to a folder on the card, `/home/hab/footage`, no new
+  partition** (Aditya, 2026-10-20). The 17.7 GB of unpartitioned card space
+  stays as it is; flight storage (USB drive or partition) is still open.
+- **MJPEG is stored as the camera delivers it, in AVI 1.0, with the standard
+  Huffman tables inserted per frame.** Why: the Pi 5 has no video encoder and
+  the CPU belongs to the LLM; the C270 omits the tables and strict decoders
+  (ImageIO, QuickTime) refuse such frames; AVI 1.0 is 200 lines of Kotlin and
+  plays everywhere, OpenDML is not needed for 60 s segments (~70 MB).
+- **`camrec` is its own process and service, not part of `flightd`.** Why: a
+  stalled camera or a full disk must never touch the beacon's 30 s watchdog.
+- **Bench recordings are one-shot clips (`record 60`), the always-on service
+  stays disabled** (Aditya, 2026-10-20: "do for a 1 minute recording").
+  Pulled clips live in `BosconSpace/footage/` on the Mac, git-ignored.
 
 ## Earlier (from docs/01, 04, 14, 17)
 

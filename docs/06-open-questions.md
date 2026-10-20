@@ -15,6 +15,12 @@ Last updated: 2026-10-19
 - Whether to apply the bootloader EEPROM update now (`sudo rpi-eeprom-update
   -a`); it may be what USB gadget mode needs.
 
+- Flight footage storage: the card's root folder holds about 20 minutes at
+  1 MB/s. Options: the USB drive (plan), or a partition in the 17.7 GB of free
+  card space (declined for now). Second camera and its USB bandwidth.
+- Brownout test for `camrec`: cut power mid-segment and confirm the file plays
+  up to the last 2 s checkpoint (only inspected, not done).
+
 ## Unresolved
 - GPS parked (Aditya, 2026-10-11): indoors; bridge pin sampling with
   pull-downs showed no Heltec pin driven, i.e. the NEO-6M is unpowered or
@@ -35,6 +41,6 @@ Last updated: 2026-10-19
 - Kotlin/Native linuxArm64 is Tier 2: pinned to 2.4.10; bump only between
   test blocks.
 - Hotspot address changes; always use `hab1.local`.
-- Inference power ~10 W (others' measurement) vs docs/01 budget 5.4 W —
+- Inference power ~10 W (others' measurement) vs docs/01 budget 5.4 W,
   re-measure and update docs/01 §7.
-- Vision model memory on 4 GB — must be measured before promising the demo.
+- Vision model memory on 4 GB, must be measured before promising the demo.

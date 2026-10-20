@@ -1,0 +1,17 @@
+[Unit]
+Description=HAB-1 camrec (C270 MJPEG to AVI segments)
+After=multi-user.target
+
+[Service]
+Type=simple
+User=hab
+# device by id so a second camera cannot steal /dev/video0; dir, segment seconds, size, fps, min free MB
+ExecStart=/home/hab/camrec /dev/v4l/by-id/usb-046d_C270_HD_WEBCAM_2BA96170-video-index0 /home/hab/footage 60 1280x720 15 500
+Restart=always
+RestartSec=5
+Nice=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

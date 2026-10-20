@@ -188,6 +188,11 @@ sit inside `remember { }`; linker options go in the cinterop `.def`;
 ---
 
 ### Changelog of this document
+- 2026-10-20: camera. A Logitech C270 is read through V4L2 from Kotlin (mmap
+  streaming, the kernel header straight from the sysroot) and its MJPEG frames
+  are written to AVI segments by a 200-line Kotlin writer, Huffman tables
+  inserted so strict players open them. Tested on the JVM against a real
+  frame; one-minute clip verified on the board and decoded by AVFoundation.
 - 2026-10-11: first version, after the first bench day: M0–M3, M5, M6, M7a,
   M8, M9, M11, M16 passed; M12 soaking.
 - 2026-10-12: the project is named Kapex. The folder `payload/` became `kapex/`, the

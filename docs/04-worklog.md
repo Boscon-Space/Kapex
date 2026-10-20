@@ -2,6 +2,49 @@
 
 Newest session first. One entry per session; bullets are what actually happened.
 
+## 2026-10-20: Logitech C270 recorded to the card, in Kotlin
+
+- Camera detected on the Pi: Logitech C270 (USB 046d:0825, `uvcvideo`,
+  `/dev/video0`, stable path `/dev/v4l/by-id/usb-046d_C270_HD_WEBCAM_2BA96170-video-index0`).
+  Formats: YUYV and MJPG; MJPG up to 1280x720 at 30 fps; 15 fps accepted.
+  Its JPEG frames carry no Huffman tables (markers APP0 DQT DQT DRI APP0 SOF0 SOS).
+- 60 frames at 1280x720 MJPG via `v4l2-ctl`: 3,380,788 bytes, 56.3 KB per
+  frame on the bench scene. Computed rate: 0.85 MB/s at 15 fps, 1.7 MB/s at 30.
+- Built, all Kotlin, no ffmpeg (none on the Pi or the Mac):
+  `hal/LinuxV4l2Camera` (V4L2 mmap streaming through `videodev2.h` from the
+  sysroot, ioctl numbers via inline getters in `linuxio.def`, `statvfs`
+  wrapped there as `hab_free_bytes` because Kotlin/Native lacks it);
+  `camera/` (`Mjpeg.withHuffmanTables`, inserts the 420-byte standard DHT;
+  `AviWriter`, AVI 1.0 'vids'/'MJPG', header patched at every checkpoint;
+  `PosixFileSink`); `camrec/` (one process, 60 s segments, checkpoint and
+  fsync every 2 s, pause below 500 MB free, camera retried every 5 s,
+  `max_segments` for one-shot clips); `systemd/hab1-camrec.service`;
+  `tools/pi_camrec.sh` (install, record, check, pull); `tools/avi_segment_check.py`;
+  `tools/avi_check.swift` (AVFoundation decode on the Mac).
+- Tests, JVM, 9 of 9: the real C270 frame is rejected by ImageIO raw and
+  decodes at 1280x720 after the DHT; AVI parsed back by an independent reader
+  in the test (frames, offsets, idx1); checkpointed file without index parses;
+  1 GiB cap refuses the 61st 16 MiB frame.
+- On the board, continuous service, four segments: 891, 891, 894 frames per
+  60 s (14.85 fps delivered for 15 asked), dropped 0, 6, 1, 0 (limit 1 %),
+  46.8, 63.8, 70.5 MB (0.78 to 1.17 MB/s, scene dependent). `camrec` 0.1 % CPU,
+  17.7 MB RSS, SoC 42.8 °C. Torn copy of a segment: check FAILS as it must.
+  Open file copied mid-write: 500 frames declared, 388,370 bytes beyond the
+  last checkpoint (limit 4 MB).
+- Aditya: no partition, just a folder; then: one minute, not continuous;
+  pulled footage goes to `BosconSpace/footage/` (git-ignored). Service
+  disabled; `tools/pi_camrec.sh record 60` made
+  `cam0-20261020T034205Z-0001.avi`: 891 frames, 0 dropped, 49,543,818 bytes,
+  60.1 s. AVFoundation on the Mac: 1280x720, 891 frames decoded, reader
+  completed. SHA-256 identical on both sides (0675c2cd...).
+- Not done: second camera; power-cut test (brownout claim is by inspection of
+  the open file, not by pulling the plug); disk-full and camera-unplug paths
+  never exercised on the board; no camera panel in the station; linuxArm64
+  unit tests not run. Root partition has 1.8 GB free: at about 1 MB/s that is
+  roughly 20 minutes of footage above the 500 MB floor, so flight footage
+  still needs the USB drive or the 17.7 GB of unpartitioned card space.
+  The four bench segments (231 MB) are still in `~/footage` on the Pi.
+
 ## 2026-10-19: Sun Devil Rocketry review; baro altitude fixed above 11 km
 
 - Read 18 of Sun Devil Rocketry's (ASU) avionics repos for practices to adopt.
@@ -38,7 +81,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   the station (verified: jar class version 65). Reinstalled.
 - Not done: a login item (start at login) awaits Aditya's yes.
 
-## 2026-10-12 — JetBrains pitch page and email
+## 2026-10-12: JetBrains pitch page and email
 
 - Aditya's facts for the pitch (his statements, not measured by us): first
   launch **24 October 2026**, reserve **31 October**; clearances from the
@@ -102,7 +145,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   copyright (Aditya or Boscon Space) has not been decided. Open: that decision, and
   whether to add the optional per-file header.
 
-## 2026-10-11 — plan, docs, Pi bring-up, first Kotlin code
+## 2026-10-11: plan, docs, Pi bring-up, first Kotlin code
 
 **Research and plan**
 - Wrote `docs/35-pi5-kotlin-payload-computer.md`: Kotlin options on the Pi 5,
@@ -136,16 +179,16 @@ Newest session first. One entry per session; bullets are what actually happened.
   one-time toolchain download (aarch64 gcc 8.3 / glibc 2.25 / kernel 4.9
   sysroot), then a 655 KB ELF.
 - **Ran on the Pi (16:10):** `PASS chip pinctrl-rp1 54 lines`; `FAIL loopback
-  10/20` with no jumper fitted (input reads constant low — the expected
+  10/20` with no jumper fitted (input reads constant low, the expected
   failure signature); `PASS i2c scan` with an empty bus. Exit code 1 as
   designed. Dynamic deps: libc, libm, libpthread, libdl, libresolv, libcrypt,
-  librt, libutil, libgcc_s — all from the base image, nothing installed.
+  librt, libutil, libgcc_s, all from the base image, nothing installed.
 - Jumper fitted on pins 11–13 (drawn in `docs/pi5-header.html` because the
   Pi 5 header is unlabelled): `PASS loopback 20/20`. M2 done.
 - `edge_probe` (coroutines; blocking `read()` on the line fd in Dispatchers.IO,
   toggling from another coroutine): 2000 pulses at 500 µs and 100 µs half
   periods, all 4000 edges seen, seqno contiguous. Effective toggle rate at the
-  100 µs setting was ~2.95 kHz (2000 pulses in 678 ms) — `usleep` overhead,
+  100 µs setting was ~2.95 kHz (2000 pulses in 678 ms), `usleep` overhead,
   not a kernel limit. Binary 1.19 MB with kotlinx-coroutines. M5 done.
 - Wrote `drivers/` module: BMP280 driver (datasheet integer compensation,
   unit test against the Bosch example values) and `baro_probe`. **Unit tests
@@ -154,7 +197,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   not yet wired.
 - Added `LinuxSpiBus` (spidev, SPI_IOC_MESSAGE) to the HAL and `spi_probe`
   (MOSI→MISO loopback, 1280 bytes at 1/4/8 MHz, needs a jumper on pins 19–21).
-- `spi_probe` on the Pi: PASS at 1, 4, 8 MHz, 1280/1280 bytes — but the
+- `spi_probe` on the Pi: PASS at 1, 4, 8 MHz, 1280/1280 bytes, but the
   jumper was already fitted, so the failing case had not been seen. Jumper
   pulled: FAIL 1279/1280 at all three speeds, MISO reads constant 0x00 (the
   one match is the ramp's own zero byte). Refitted: PASS 1280/1280 at
@@ -162,11 +205,11 @@ Newest session first. One entry per session; bullets are what actually happened.
   events, SPI; I²C transaction path exercised (bus empty).
 - Radio path started: `LinuxSerialPort` (termios + poll) in the HAL;
   `firmware/23_spi_bridge` (Heltec as a dumb SPI/GPIO adapter over USB-CDC at
-  921600, compiled 283 KB, **not uploaded** — needs a decision on which Heltec
+  921600, compiled 283 KB, **not uploaded**, needs a decision on which Heltec
   to repurpose); `Sx1262Bus` interface, `BridgeBus`, minimal `Sx1262` driver
   (reset, GetStatus, Read/WriteRegister, version string at 0x0320), and
   `radio_probe`. Built (611 KB) after one termios type fix; staged on the Pi.
-  Without the bridge plugged in it fails on open(/dev/ttyUSB0) — the failing
+  Without the bridge plugged in it fails on open(/dev/ttyUSB0), the failing
   half of M6.
 - Aditya chose the **TX Heltec** (was `08_telemetry_tx`) for the bridge.
   Flashed `23_spi_bridge` from the Mac (compile, then upload, port
@@ -185,7 +228,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   5.14 V at the PMIC input, `radio_probe` ALL PASS. Bench is now in its
   steady configuration: Pi on PSU, Heltec bridge on USB, Mac over Wi-Fi.
 - BMP280 wired to pins 1/3/5/9 (wiring figure added to `docs/pi5-header.html`).
-  First attempt: bus clean (SDA/SCL idle high) but empty — a wiring error,
+  First attempt: bus clean (SDA/SCL idle high) but empty, a wiring error,
   fixed by Aditya. Then `i2cdetect` shows 0x76; `gpio_probe` reads id 0x58;
   `baro_probe` ALL PASS: 937.71 hPa mean, 31.47 °C, spread 0.017 hPa over
   10 readings in 2 s. M3 done. (Pune ≈ 560 m → ~947 hPa standard; 937.7 is
@@ -216,13 +259,13 @@ Newest session first. One entry per session; bullets are what actually happened.
   41943, frf 908171648 = RadioLib's float32 value, PA table).
 - Bridge v2 flashed (ping OK). Two driver bugs found on the board, both
   about the SX126x status byte: (1) the wake-up NOP's status carries the
-  previous command's flags — RadioLib does not check it; (2) **until
+  previous command's flags, RadioLib does not check it; (2) **until
   SetDIO3AsTCXOCtrl is sent, every command reports "failure to execute"
-  (0xAA)** because the Heltec's TCXO has not started — RadioLib ignores
+  (0xAA)** because the Heltec's TCXO has not started, RadioLib ignores
   status up to that point. Fixed by mirroring that.
 - **Kotlin transmits.** 15 then 60 frames, each confirmed by TX_DONE,
   ~37 ms per frame including bridge round trips, status 0x22 after config,
-  BMP280 data in every frame (937.9 hPa, 30.8 °C). GPS: 0 sentences — the
+  BMP280 data in every frame (937.9 hPa, 30.8 °C). GPS: 0 sentences, the
   NEO-6M is probably no longer connected to the Heltec after it was moved.
   **Aditya confirmed the RX Heltec (09_telemetry_rx, TFT) shows the Pi's
   frames.** First telemetry on air from Kotlin. Bridge v3 adds the OLED
@@ -284,7 +327,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   replying `CALL <name>`; result fed back as a user turn; tool budget;
   unknown-tool handling). Six scripted-engine tests on the Mac (tests="6" skipped="0" failures="0").
 - `agent_probe` on the Pi with the real model and the real BMP280 behind
-  `read_sensors`: **ALL PASS** — "What is the air pressure around you?" →
+  `read_sensors`: **ALL PASS**, "What is the air pressure around you?" →
   CALL read_sensors → "The air pressure around me is 938.5 hPa." (live
   reading 938.5 hPa; 5.9 s, two model rounds); sky question answered
   directly (3.6 s, no tool); guard tripped at 86 °C → ERR_HOT in 0 ms.
@@ -306,7 +349,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   with a Gaussian 14 cps peak at 19 km.
 
 **M12: flightd**
-- `flightd/`: one process — BMP280 → analysis (ChannelMonitor, Rolling
+- `flightd/`: one process, BMP280 → analysis (ChannelMonitor, Rolling
   vertical rate, AltitudeProfile) → 28-byte frame → beacon through the
   bridge → NDJSON `FlightLog` on /log (O_SYNC, 10-min rotation) → `Systemd`
   watchdog pet (sd_notify over a Unix datagram, no libsystemd; `sockaddr_un`
@@ -318,7 +361,7 @@ Newest session first. One entry per session; bullets are what actually happened.
   beacon-only service.
 - Two bench bugs: (1) I set `guards.busy` before handing the prompt to the
   agent, so it refused its own prompt (ERR_BUSY); (2) `scp` over the running
-  binary fails with "text file busy" and the old binary kept running — the
+  binary fails with "text file busy" and the old binary kept running, the
   install now copies beside and renames, and prints both hashes.
 - **Verified:** prompt → read_sensors → "The air pressure is 938.6 hPa, the
   temperature is 30.7 degrees Celsius, and the barometric altitude is 641
@@ -334,7 +377,7 @@ Newest session first. One entry per session; bullets are what actually happened.
 - Aditya asked for one Mac application showing and controlling everything:
   Pi connection, pins, Heltec/radio, data charts, prompts in/out, the Kotlin
   analysis, fan control, a code editor for the bridge sketch and the Kotlin
-  modules with check/build/flash/deploy, Wi-Fi settings, hardware watchdog —
+  modules with check/build/flash/deploy, Wi-Fi settings, hardware watchdog,
   all from real data, nothing sampled.
 - `station/`: Compose for Desktop (CMP 1.12.1, Kotlin 2.4.10), JVM, reuses
   `protocol` and `analysis` as libraries. One SSH round trip every 2 s runs
@@ -348,8 +391,8 @@ Newest session first. One entry per session; bullets are what actually happened.
   Analysis (same Rolling/ChannelMonitor/AltitudeProfile code run on the Mac),
   Fan (rpm/pwm/curve, manual pwm override + auto), Code (editor with Save,
   Check = arduino-cli / gradle+tests, Flash via Pi, Build+deploy flightd),
-  Settings (host/key/repo, Pi Wi-Fi via nmcli — password sent to the Pi,
-  never stored —, hardware watchdog enable/disable via RuntimeWatchdogSec,
+  Settings (host/key/repo, Pi Wi-Fi via nmcli, password sent to the Pi,
+  never stored,, hardware watchdog enable/disable via RuntimeWatchdogSec,
   reboot/poweroff). Charts follow the dataviz rules: one measure per axis,
   2 px line, validated palette hue, hover crosshair. Compiles clean; runs
   with `gradle :station:run`; verified alive from the Pi's side (sshd logs
@@ -377,7 +420,7 @@ Newest session first. One entry per session; bullets are what actually happened.
 - With the Heltec removed: flightd stayed active, logged `tx error: write
   failed: Input/output error (errno 5)` each second, and still answered a
   prompt in 8 s with the live 939.3 hPa. But a *restart* without the bridge
-  used to be FATAL. Changed: the radio is optional at any moment — attach at
+  used to be FATAL. Changed: the radio is optional at any moment, attach at
   start if the port answers, otherwise retry every 10 s; detach on
   EIO/ENOENT/timeout and re-attach when it returns; `radio` flag in each
   tlm record. Station relaunch had failed on a `remember { isSystemInDarkTheme() }`

@@ -3,7 +3,7 @@
 # declared here verbatim from include/uapi/linux/gpio.h because the sysroot's
 # headers predate it. Layouts must match the kernel exactly: they are the ABI.
 package = space.boscon.kapex.hal.linuxio
-headers = linux/i2c-dev.h linux/i2c.h linux/spi/spidev.h sys/ioctl.h
+headers = linux/i2c-dev.h linux/i2c.h linux/spi/spidev.h linux/videodev2.h sys/ioctl.h
 compilerOpts = -D_GNU_SOURCE
 
 ---
@@ -112,3 +112,22 @@ _Static_assert(sizeof(struct hab_gpio_v2_line_config_attribute) == 24, "line_con
 _Static_assert(sizeof(struct hab_gpio_v2_line_config) == 272, "line_config size");
 _Static_assert(sizeof(struct hab_gpio_v2_line_request) == 592, "line_request size");
 _Static_assert(sizeof(struct hab_gpio_v2_line_event) == 48, "line_event size");
+
+/* V4L2 (videodev2.h) request numbers for UVC camera capture; the structs come
+   straight from the sysroot header (kernel 4.9), whose layout is the stable ABI. */
+static inline unsigned long hab_ioc_vid_querycap(void)  { return VIDIOC_QUERYCAP; }
+static inline unsigned long hab_ioc_vid_s_fmt(void)     { return VIDIOC_S_FMT; }
+static inline unsigned long hab_ioc_vid_s_parm(void)    { return VIDIOC_S_PARM; }
+static inline unsigned long hab_ioc_vid_reqbufs(void)   { return VIDIOC_REQBUFS; }
+static inline unsigned long hab_ioc_vid_querybuf(void)  { return VIDIOC_QUERYBUF; }
+static inline unsigned long hab_ioc_vid_qbuf(void)      { return VIDIOC_QBUF; }
+static inline unsigned long hab_ioc_vid_dqbuf(void)     { return VIDIOC_DQBUF; }
+static inline unsigned long hab_ioc_vid_streamon(void)  { return VIDIOC_STREAMON; }
+static inline unsigned long hab_ioc_vid_streamoff(void) { return VIDIOC_STREAMOFF; }
+static inline unsigned int  hab_v4l2_fourcc_mjpeg(void) { return V4L2_PIX_FMT_MJPEG; }
+
+/* Free space for an unprivileged writer, in bytes, or -1. statvfs is not in
+   Kotlin/Native's posix bindings and its struct lives in a bits/ header that
+   cinterop filters out, so the call is wrapped here. */
+#include <sys/statvfs.h>
+static inline long long hab_free_bytes(const char* path) { struct statvfs st; if (statvfs(path, &st) < 0) return -1; return (long long)st.f_bavail * (long long)st.f_frsize; }

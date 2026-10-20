@@ -7,4 +7,4 @@ dependencyResolutionManagement {
     repositories { mavenCentral(); google() }
 }
 
-include(":hal", ":protocol", ":drivers", ":llm", ":agent", ":analysis", ":flightd", ":probes", ":station")
+include(":hal", ":protocol", ":drivers", ":llm", ":agent", ":analysis", ":camera", ":flightd", ":camrec", ":probes", ":station")

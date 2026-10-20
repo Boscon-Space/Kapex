@@ -1,4 +1,4 @@
-# Findings — verified facts, and what is not verified
+# Findings: verified facts, and what is not verified
 
 Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
 
@@ -104,7 +104,7 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   timed.
 - **Version string at 0x0320 reads "SX1261 V2D 2D02"** on a board sold as
   SX1262. RadioLib users have reported the same string on SX1262 modules, so
-  the string alone does not settle which die this is — but it matters:
+  the string alone does not settle which die this is, but it matters:
   SX1261 tops out at +15 dBm, SX1262 at +22 dBm, and every power figure in
   docs/14, 15, 19 assumes +22 dBm. Needs a test that can fail: command
   +22 dBm and measure, or check Heltec's schematic/part marking.
@@ -129,12 +129,12 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
 - **C++ baseline, `llama-bench -t 4`:** prompt 61.58 ± 0.01 tok/s (pp64),
   **generation 12.06 ± 0.03 tok/s (tg128)**. Above the plan's 8 tok/s line.
 - SoC temperature right after the bench: **77.4 °C** with whatever cooling is
-  on the bench board — the throttle band starts at 80 °C. Sustained
+  on the bench board, the throttle band starts at 80 °C. Sustained
   inference needs the active cooler / conduction path before any long test.
 - **Kotlin in-process (`llm_probe`, cinterop to libllama, greedy, ctx 512,
   4 threads):** load 2443 ms (1777 M params, 1059 MiB, MMAP+MLOCK); prompt
   80 tok in 1306 ms (61 tok/s); generation 52 tok in 4353 ms = **11.9
-  tok/s**, 3 tok at 12.0 tok/s — i.e. no measurable overhead over the C++
+  tok/s**, 3 tok at 12.0 tok/s, i.e. no measurable overhead over the C++
   baseline. Both answers stopped on eos; "17 times 23" → "391". SoC 63.7 °C
   after the run (short run; the bench put it at 77.4 °C).
 - llama.cpp's `cmake --install` ships the ggml headers/libs but **not**
@@ -149,17 +149,33 @@ Last updated: 2026-10-11. "Verified" = observed on the board or measured here.
   ~300-token context.
 - **Fan:** the Active Cooler was on the 4-pin connector but the firmware had
   left the `cooling_fan` device-tree node *disabled* (no cooling device, fan
-  never ran — the 77.4 °C bench was unfanned). `dtparam=cooling_fan=on` in
+  never ran, the 77.4 °C bench was unfanned). `dtparam=cooling_fan=on` in
   config.txt fixes it; curve set to 45/55/63/70 °C → pwm 120/170/220/255.
   Verified after reboot: `pwm-fan` state 1/4, 3128 rpm at pwm 120, 48.8 °C.
 - Power during inference not yet measured: the Pi 5 PMIC ADC reports input
   *voltage* and core current, not input current. Needs an inline USB-C meter.
+
+## Camera (verified 2026-10-20)
+
+- Logitech C270, USB 046d:0825, driver `uvcvideo`, MJPG and YUYV, MJPG up to
+  1280x720 at 30 fps. JPEG frames have no DHT segment.
+- 1280x720 MJPG at 15 fps: the camera delivers 891 to 894 frames per 60 s
+  (14.85 fps). Frame size 56 KB average (`v4l2-ctl`, 60 frames); segments of
+  60 s weighed 46.8 to 70.5 MB, so 0.78 to 1.17 MB/s on the bench scene. Expect
+  the sky to differ; not measured.
+- `camrec` at 15 fps: 0.1 % CPU, 17.7 MB RSS (`ps`, 16 s in); SoC 42.8 °C.
+- Dropped frames (driver sequence gaps) per 60 s segment: 0, 6, 1, 0, 0.
+  Limit set in `tools/avi_segment_check.py`: 1 %.
+- AVFoundation reads the AVI as codec `dmb1` (Apple's name for MJPEG in AVI):
+  891 frames decoded, reader completed.
+- The RIFF checks catch a torn file (copy truncated at 3,000,000 bytes: FAIL).
+- Root partition free space: 2.1 GB before, 1.8 GB after 5 clips.
 
 ## Not verified / open
 
 - Why the Mac never enumerates the Pi in gadget mode (EEPROM update pending
   is the first thing to try).
 - Actual power during inference, binary RSS, model load time, tokens/s on
-  *this* board — all still assumed.
-- BMP280 rated range 300–1100 hPa, MS5611 10–1200 mbar — recalled, check the
+  *this* board, all still assumed.
+- BMP280 rated range 300–1100 hPa, MS5611 10–1200 mbar, recalled, check the
   datasheets before the BOM is final.

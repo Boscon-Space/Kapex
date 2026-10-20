@@ -19,7 +19,7 @@ Status: ☐ not started · ◐ in progress · ☑ passed on the board · ✗ fai
 | M10 | Sensor suite drivers | AS7331, AS7341, BNO085, Geiger each with a probe that can fail | ☐ | |
 | M11 | Analysis module | unit tests on the Mac; Pfotzer peak found in a synthetic profile | ☑ 8/8: peak at 19 km ± 250 m on a synthetic ascent (ratio > 50), none on a monotonic rise; burst/free-fall state machine; spike-without-descent rejected; STUCK/RATE/STALE flags; honest prompt text | 2026-10-11 |
 | M12 | `flightd` as a systemd service | survives 24 h soak, watchdog restart demonstrated | ◐ installed, Type=notify + WatchdogSec=30; prompt answered with live sensors while the beacon held 1000 ± 6 ms; SIGKILL → restarted; SIGSTOP → `Failed with result 'watchdog'`, back in 40 s. **24 h soak pending** (left running 2026-10-11 19:30 IST) | 2026-10-11 |
-| M13 | Camera capture to USB drive | 2 streams, 60 s segments, brownout loses ≤ 60 s | ☐ | |
+| M13 | Camera capture to USB drive | 2 streams, 60 s segments, brownout loses ≤ 60 s | ◐ one C270, Kotlin V4L2 to MJPEG AVI, 60 s segments to a folder on the card (Aditya: no partition); checkpoint every 2 s, open file inspected mid-write holds all but 0.39 MB; **not done:** second camera, USB drive, real power cut, flight-length storage (root has 1.8 GB free, about 20 min) | 2026-10-20 |
 | M14 | Kotlin/Native go/no-go recorded | all of M1–M9 pass; else JVM fallback decision | ☐ | |
 | M16 | HAB-1 Station (Mac console) | every panel live from the Pi, prompts round-trip through the app | ☑ Aditya: overview/pins live, colours stable, prompts working (2026-10-11 20:35) | 2026-10-11 |
 | M15 | Flight lock-down | read-only root, journald volatile, model mlocked, cold test passed | ☐ | |

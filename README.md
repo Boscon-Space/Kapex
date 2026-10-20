@@ -11,6 +11,8 @@ bench bring-up log.
 | Path | What |
 |---|---|
 | `hal/` | Kernel-interface HAL: GPIO chardev v2, i2c-dev, spidev, termios. Links libc only. |
+| `camera/` | MJPEG frames to AVI segments: Huffman-table insertion, AVI 1.0 writer, file sink. JVM-tested on a real C270 frame. |
+| `camrec/` | One camera to 60 s AVI segments on the card; its own systemd service or a one-shot clip. |
 | `probes/` | Bench probes, one executable each, pass conditions that can fail. |
 | `tools/image_card.sh` | Write the OS image to a microSD on the Mac. |
 | `tools/boot_config.sh` | Put the cloud-init first-boot files on an imaged card. |
